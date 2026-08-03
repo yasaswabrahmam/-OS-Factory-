@@ -1,0 +1,1330 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Factory OS — Decision Intelligence</title>
+    <meta name="description" content="Real-time manufacturing decision intelligence and predictive telemetry.">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <!-- Design System CSS -->
+    <link rel="stylesheet" href="css/variables.css">
+    <link rel="stylesheet" href="css/main.css">
+</head>
+<body class="dashboard-body">
+    <!-- Three.js Procedural Background Container -->
+    <div id="three-container"></div>
+
+    <!-- App Wrapper -->
+    <div class="app-layout">
+        <!-- SIDEBAR -->
+        <aside class="app-sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <div class="brand-logo">
+                    <i data-lucide="factory" class="logo-icon"></i>
+                    <div class="brand-info">
+                        <span class="brand-title">Factory OS</span>
+                        <span class="brand-subtitle">DECISION INTELLIGENCE</span>
+                    </div>
+                </div>
+                <button class="mobile-menu-toggle" id="mobile-menu-toggle" style="display:none;" aria-label="Toggle navigation menu">
+                    <i data-lucide="menu" style="width:18px; height:18px;"></i>
+                </button>
+            </div>
+
+            <!-- Active Site Card -->
+            <div class="active-site-card">
+                <span class="site-label">ACTIVE SITE</span>
+                <span class="site-name" id="sidebar-site-name">Detroit Giga-Assembly Plant Alpha</span>
+            </div>
+
+            <!-- Search Field -->
+            <div class="sidebar-search">
+                <i data-lucide="search" class="search-icon"></i>
+                <input type="text" placeholder="Search..." id="sidebar-search-input">
+                <kbd class="kbd-hint">Ctrl+/</kbd>
+            </div>
+
+            <!-- Sidebar Navigation -->
+            <nav class="sidebar-nav">
+                <div class="nav-section">
+                    <span class="nav-section-title">CORE</span>
+                    <a href="#dashboard" class="nav-item active" data-view="dashboard">
+                        <i data-lucide="layout-dashboard"></i>
+                        <span>Dashboard</span>
+                    </a>
+                    <a href="#copilot" class="nav-item" id="nav-item-copilot">
+                        <i data-lucide="bot" class="ai-glow-icon"></i>
+                        <span>AI Copilot</span>
+                        <span class="ai-badge">AI</span>
+                    </a>
+                </div>
+
+                <div class="nav-section">
+                    <span class="nav-section-title">OPERATIONS</span>
+                    <a href="#production" class="nav-item" data-view="production">
+                        <i data-lucide="cpu"></i>
+                        <span>Production</span>
+                    </a>
+                    <a href="#maintenance" class="nav-item" data-view="maintenance">
+                        <i data-lucide="wrench"></i>
+                        <span>Maintenance</span>
+                    </a>
+                    <a href="#quality" class="nav-item" data-view="quality">
+                        <i data-lucide="shield-check"></i>
+                        <span>Quality</span>
+                    </a>
+                    <a href="#inventory" class="nav-item" data-view="inventory">
+                        <i data-lucide="boxes"></i>
+                        <span>Inventory</span>
+                    </a>
+                </div>
+
+                <div class="nav-section">
+                    <span class="nav-section-title">INTELLIGENCE</span>
+                    <a href="#analytics" class="nav-item" data-view="analytics">
+                        <i data-lucide="bar-chart-3"></i>
+                        <span>Analytics</span>
+                    </a>
+                    <a href="#recommendations" class="nav-item" data-view="recommendations">
+                        <i data-lucide="lightbulb"></i>
+                        <span>Recommendations</span>
+                        <span class="badge badge-info">3</span>
+                    </a>
+                    <a href="#alerts" class="nav-item" data-view="alerts" id="nav-item-alerts">
+                        <i data-lucide="alert-triangle"></i>
+                        <span>Alerts</span>
+                        <span class="badge badge-danger" id="sidebar-alert-badge">1 CRITICAL</span>
+                    </a>
+                </div>
+
+                <div class="nav-section">
+                    <span class="nav-section-title">MANAGEMENT</span>
+                    <a href="#upload" class="nav-item" data-view="upload">
+                        <i data-lucide="upload-cloud"></i>
+                        <span>Data Upload</span>
+                    </a>
+                    <a href="#reports" class="nav-item" data-view="reports">
+                        <i data-lucide="file-text"></i>
+                        <span>Reports</span>
+                    </a>
+                    <a href="#knowledge" class="nav-item" data-view="knowledge">
+                        <i data-lucide="book-open"></i>
+                        <span>Knowledge Base</span>
+                    </a>
+                    <a href="#settings" class="nav-item" data-view="settings">
+                        <i data-lucide="settings"></i>
+                        <span>Settings</span>
+                    </a>
+                </div>
+            </nav>
+
+            <!-- Sidebar Footer / User Profile -->
+            <div class="sidebar-footer">
+                <div class="user-profile-widget">
+                    <img src="https://ui-avatars.com/api/?name=Alexander+Vance&background=0D8ABC&color=fff" alt="Alexander Vance" class="user-avatar-img">
+                    <div class="user-meta">
+                        <span class="user-name">Alexander Vance</span>
+                        <span class="user-role">Plant Manager</span>
+                    </div>
+                    <button class="logout-btn" aria-label="Settings">
+                        <i data-lucide="settings"></i>
+                    </button>
+                </div>
+                <!-- Local Plant Weather Widget matching Photo 1 -->
+                <div class="weather-widget" style="display:flex; align-items:center; gap:10px; margin-top:12px; padding:8px 12px; background:rgba(255,255,255,0.02); border:1px solid var(--glass-border); border-radius:var(--radius-md);">
+                    <i data-lucide="cloud-sun" style="width:20px; height:20px; color:#fbbf24;"></i>
+                    <div style="display:flex; flex-direction:column;">
+                        <span id="weather-temp" style="font-family:var(--font-heading); font-size:12px; font-weight:var(--fw-bold); color:var(--text-primary);">28°C</span>
+                        <span id="weather-desc" style="font-size:10px; color:var(--text-muted);">Mostly cloudy</span>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- MAIN CONTENT AREA -->
+        <main class="app-main">
+            <!-- TOP BAR -->
+            <header class="app-header">
+                <div class="header-left">
+                    <div class="site-selector-dropdown">
+                        <i data-lucide="map-pin" class="site-icon"></i>
+                        <select id="site-selector" class="site-select">
+                            <option value="detroit">Detroit Giga-Assembly Plant Alpha</option>
+                            <option value="austin">Austin Giga-Factory 1</option>
+                            <option value="berlin">Berlin Giga-Factory 2</option>
+                            <option value="shanghai">Shanghai Megapack Plant</option>
+                        </select>
+                    </div>
+
+                    <div class="telemetry-badge-container" style="display:flex; align-items:center; gap:var(--space-2);">
+                        <span class="telemetry-badge" id="telemetry-badge">
+                            <span class="pulse-dot"></span>
+                            IoT Telemetry: <span class="status-mode">Live (100 Hz)</span>
+                        </span>
+                        <span class="telemetry-badge" id="benchmark-score-badge" style="border-color: rgba(139,92,246,0.3); background: rgba(139,92,246,0.08); color: #c084fc; font-weight: bold; cursor: pointer;" onclick="showToast('FACTORY OS BENCHMARK METRIC:\n• Overall OEE Score: 96.4%\n• Quality FPY: 98.8%\n• Availability: 97.6%\n• Performance: 96.2%\n\nStatus: PASSED (>95% Benchmark Threshold)', 'success')">
+                            <i data-lucide="award" style="width:12px; height:12px; margin-right:4px; display:inline-block;"></i>
+                            Benchmark Score: <span id="header-benchmark-score" style="color: #4ade80;">96.4%</span> <span style="font-size:9px; background:rgba(34,197,94,0.15); color:#4ade80; padding:1px 4px; border-radius:3px; margin-left:4px;">PASS &gt;95%</span>
+                        </span>
+                    </div>
+                </div>
+
+                <div class="header-right">
+                    <!-- Search bar -->
+                    <div class="header-search">
+                        <i data-lucide="search" class="search-icon"></i>
+                        <input type="text" placeholder="Search commands... (Ctrl+K)" id="global-search">
+                    </div>
+
+                    <!-- Quick Action Button -->
+                    <button class="btn btn-primary" id="btn-quick-action">
+                        <i data-lucide="plus-circle"></i>
+                        <span>Quick Action</span>
+                    </button>
+
+                    <!-- Alert / Notification Dropdown -->
+                    <div class="notification-wrapper">
+                        <button class="icon-btn" id="btn-notifications" aria-label="Notifications">
+                            <i data-lucide="bell"></i>
+                            <span class="notification-indicator" id="alert-count-indicator">2</span>
+                        </button>
+                        
+                        <div class="dropdown-panel dropdown-notifications" id="notifications-dropdown">
+                            <div class="dropdown-header">
+                                <span class="dropdown-title">Alerts & Notifications</span>
+                                <span class="dropdown-badge" id="unread-alerts-badge">2 Unread</span>
+                            </div>
+                            <div class="dropdown-content" id="alerts-list">
+                                <!-- Telemetry Alert -->
+                                <div class="alert-item warning">
+                                    <div class="alert-icon-wrapper">
+                                        <i data-lucide="activity"></i>
+                                    </div>
+                                    <div class="alert-details">
+                                        <p class="alert-msg">Machine telemetry exceeded ISO 10816 class III threshold. Immediate operator intervention required.</p>
+                                        <span class="alert-time">12 mins ago</span>
+                                    </div>
+                                </div>
+                                <!-- Critical Press Alert -->
+                                <div class="alert-item danger">
+                                    <div class="alert-icon-wrapper">
+                                        <i data-lucide="alert-triangle"></i>
+                                    </div>
+                                    <div class="alert-details">
+                                        <p class="alert-title-text">Schuler Press Hydraulic Pressure Decay</p>
+                                        <p class="alert-msg">Pressure variance detected on Cylinder B-2 during high-speed cycle. Predictive failure within 48h.</p>
+                                        <span class="alert-time">1 hour ago</span>
+                                    </div>
+                                </div>
+                                <!-- Carbon Fiber Alert -->
+                                <div class="alert-item info">
+                                    <div class="alert-icon-wrapper">
+                                        <i data-lucide="package"></i>
+                                    </div>
+                                    <div class="alert-details">
+                                        <p class="alert-title-text">Pre-preg Carbon Fiber Stock Below Min Safety Threshold</p>
+                                        <p class="alert-msg">Current stock level (340 rolls) reached 68% of safety threshold (500 rolls).</p>
+                                        <span class="alert-time">3 hours ago</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="dropdown-footer">
+                                <a href="#alerts" class="view-all-alerts">View All System Alerts</a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Theme Toggle -->
+                    <button class="icon-btn" id="btn-theme-toggle" aria-label="Toggle Theme">
+                        <i data-lucide="sun" class="sun-icon"></i>
+                        <i data-lucide="moon" class="moon-icon"></i>
+                    </button>
+
+                    <!-- User Profile Dropdown Widget -->
+                    <div class="profile-widget">
+                        <img src="https://ui-avatars.com/api/?name=Alexander+Vance&background=0D8ABC&color=fff" alt="Alexander Vance" class="profile-avatar">
+                    </div>
+                </div>
+            </header>
+
+            <!-- MAIN VIEWPORT -->
+            <div class="view-container" id="view-container">
+                <!-- DASHBOARD VIEW (Default) -->
+                <div class="dashboard-view active" id="view-dashboard">
+                    <div class="view-header">
+                        <div class="header-titles">
+                            <h1 class="view-title">Executive Manufacturing Dashboard</h1>
+                            <p class="view-subtitle">Real-time decision intelligence telemetry for <span class="highlight-cyan" id="current-plant-name">Detroit Giga-Assembly Plant Alpha</span></p>
+                        </div>
+                        <div class="header-actions">
+                            <button class="btn btn-secondary" id="btn-refresh-telemetry">
+                                <i data-lucide="refresh-cw" id="refresh-icon"></i>
+                                <span>Refresh Telemetry</span>
+                            </button>
+                            <button class="btn btn-primary" id="btn-ask-copilot">
+                                <i data-lucide="bot"></i>
+                                <span>Ask AI Copilot</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- BENTO GRID KEY METRICS -->
+                    <div class="bento-grid-metrics">
+                        <!-- Card 1: Overall OEE -->
+                        <div class="bento-card card-metric glow-purple">
+                            <div class="metric-header">
+                                <span class="metric-title">OVERALL OEE</span>
+                                <div class="metric-icon-box bg-purple-subtle">
+                                    <i data-lucide="gauge" class="text-purple"></i>
+                                </div>
+                            </div>
+                            <div class="metric-body">
+                                <div class="metric-value-container">
+                                    <span class="metric-value" id="val-oee">87.4%</span>
+                                </div>
+                                <div class="metric-trend up">
+                                    <i data-lucide="trending-up"></i>
+                                    <span>+3.2% vs last shift</span>
+                                </div>
+                            </div>
+                            <div class="metric-footer">
+                                <div class="sparkline-container">
+                                    <canvas id="sparkline-oee" height="40"></canvas>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Card 2: Line Availability -->
+                        <div class="bento-card card-metric glow-green">
+                            <div class="metric-header">
+                                <span class="metric-title">LINE AVAILABILITY</span>
+                                <div class="metric-icon-box bg-green-subtle">
+                                    <i data-lucide="check-circle-2" class="text-green"></i>
+                                </div>
+                            </div>
+                            <div class="metric-body">
+                                <div class="metric-value-container">
+                                    <span class="metric-value" id="val-availability">94.5%</span>
+                                </div>
+                                <div class="metric-trend up">
+                                    <i data-lucide="trending-up"></i>
+                                    <span>+1.8% vs last shift</span>
+                                </div>
+                            </div>
+                            <div class="metric-footer">
+                                <div class="sparkline-container">
+                                    <canvas id="sparkline-availability" height="40"></canvas>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Card 3: Performance Efficiency -->
+                        <div class="bento-card card-metric glow-amber">
+                            <div class="metric-header">
+                                <span class="metric-title">PERFORMANCE EFFICIENCY</span>
+                                <div class="metric-icon-box bg-amber-subtle">
+                                    <i data-lucide="cpu" class="text-amber"></i>
+                                </div>
+                            </div>
+                            <div class="metric-body">
+                                <div class="metric-value-container">
+                                    <span class="metric-value" id="val-performance">96.1%</span>
+                                </div>
+                                <div class="metric-trend down">
+                                    <i data-lucide="trending-down"></i>
+                                    <span>-0.4% vs last shift</span>
+                                </div>
+                            </div>
+                            <div class="metric-footer">
+                                <div class="sparkline-container">
+                                    <canvas id="sparkline-performance" height="40"></canvas>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Card 4: First Pass Yield -->
+                        <div class="bento-card card-metric glow-cyan">
+                            <div class="metric-header">
+                                <span class="metric-title">FIRST PASS YIELD</span>
+                                <div class="metric-icon-box bg-cyan-subtle">
+                                    <i data-lucide="sparkles" class="text-cyan"></i>
+                                </div>
+                            </div>
+                            <div class="metric-body">
+                                <div class="metric-value-container">
+                                    <span class="metric-value" id="val-yield">98.4%</span>
+                                </div>
+                                <div class="metric-trend up">
+                                    <i data-lucide="trending-up"></i>
+                                    <span>+0.9% vs last shift</span>
+                                </div>
+                            </div>
+                            <div class="metric-footer">
+                                <div class="sparkline-container">
+                                    <canvas id="sparkline-yield" height="40"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- CHARTS BENTO LAYOUT -->
+                    <div class="bento-grid-charts">
+                        <!-- Chart Card: OEE 24hr Trend -->
+                        <div class="bento-card chart-large">
+                            <div class="card-header">
+                                <div class="header-left">
+                                    <h2 class="card-title">OEE & Telemetry 24-Hour Trend</h2>
+                                </div>
+                                <div class="header-right">
+                                    <span class="badge-live-tag">
+                                        <span class="pulse-dot"></span> Live 100 Hz
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="card-body chart-body">
+                                <canvas id="chart-oee-trend" height="280"></canvas>
+                            </div>
+                        </div>
+
+                        <!-- ML Simulator Card -->
+                        <div class="bento-card simulator-card glow-cyan">
+                            <div class="card-header">
+                                <div class="header-left">
+                                    <h2 class="card-title"><i data-lucide="brain-circuit" class="text-cyan" style="vertical-align:middle; margin-right:6px; display:inline-block; width:20px; height:20px;"></i>Predictive ML Simulation</h2>
+                                </div>
+                                <div class="header-right">
+                                    <span class="badge-live-tag" style="background:rgba(6,182,212,0.08); border-color:rgba(6,182,212,0.25);">
+                                        Random Forest Regressor
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="card-body simulator-body">
+                                <!-- Simulator Sliders -->
+                                <div class="simulator-sliders">
+                                    <div class="slider-group">
+                                        <div class="slider-header">
+                                            <span class="slider-label">OPERATING SPEED (SPM)</span>
+                                            <span class="slider-value" id="val-speed-slider">12 spm</span>
+                                        </div>
+                                        <input type="range" id="input-speed" min="8" max="24" value="12" class="range-slider">
+                                    </div>
+                                    <div class="slider-group">
+                                        <div class="slider-header">
+                                            <span class="slider-label">HYDRAULIC PRESSURE (BAR)</span>
+                                            <span class="slider-value" id="val-pressure-slider">210 bar</span>
+                                        </div>
+                                        <input type="range" id="input-pressure" min="160" max="280" value="210" class="range-slider">
+                                    </div>
+                                </div>
+                                <!-- ML Model Outputs -->
+                                <div class="ml-outputs-grid">
+                                    <div class="ml-output-item">
+                                        <span class="ml-output-label">FAILURE RISK</span>
+                                        <span class="ml-output-val risk-low" id="ml-failure-risk">12.5%</span>
+                                    </div>
+                                    <div class="ml-output-item">
+                                        <span class="ml-output-label">PREDICTED RUL</span>
+                                        <span class="ml-output-val" id="ml-rul">140 hrs</span>
+                                    </div>
+                                    <div class="ml-output-item">
+                                        <span class="ml-output-label">ANOMALY INDEX</span>
+                                        <span class="ml-output-val" id="ml-anomaly-score">1.20 Z</span>
+                                    </div>
+                                    <div class="ml-output-item">
+                                        <span class="ml-output-label">STATUS</span>
+                                        <span class="ml-output-status status-healthy" id="ml-status-text">HEALTHY</span>
+                                    </div>
+                                </div>
+
+                                <!-- AI Optimizer Action -->
+                                <div style="margin-top: var(--space-4); display: flex;">
+                                    <button class="btn btn-outline" id="btn-run-optimizer" style="flex:1; justify-content:center; border-color:rgba(6,182,212,0.3); background:rgba(6,182,212,0.02); height:32px;">
+                                        <i data-lucide="cpu" class="text-cyan" style="width:14px; height:14px; margin-right:4px; display:inline-block;"></i>
+                                        <span>AI Parameter Optimizer</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Chart Card: Downtime Pareto -->
+                        <div class="bento-card chart-small">
+                            <div class="card-header">
+                                <h2 class="card-title">Unplanned Downtime Pareto</h2>
+                                <span class="header-total-label" id="total-downtime">Total: 223 mins</span>
+                            </div>
+                            <div class="card-body chart-body">
+                                <canvas id="chart-downtime-pareto" height="280"></canvas>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- CONSOLE & EXPLORER BENTO LAYOUT -->
+                    <div class="bento-grid-console" style="margin-top: var(--space-5); display: grid; grid-template-columns: 1fr 1.5fr; gap: var(--space-5);">
+                        <!-- OEE Explainer Card -->
+                        <div class="bento-card explainer-card glow-purple">
+                            <div class="card-header">
+                                <h2 class="card-title"><i data-lucide="calculator" class="text-purple" style="vertical-align:middle; margin-right:6px; display:inline-block; width:18px; height:18px;"></i>OEE Formula Decomposition</h2>
+                                <span class="badge-live-tag" style="background:rgba(139,92,246,0.08); border-color:rgba(139,92,246,0.25);">Standard Math</span>
+                            </div>
+                            <div class="card-body explainer-body" style="display:flex; flex-direction:column; justify-content:center; align-items:center; gap:var(--space-4); height:100%; min-height:160px;">
+                                <div class="oee-equation-container" style="display:flex; align-items:center; gap:var(--space-3); font-family:var(--font-heading); font-size:var(--text-lg); font-weight:var(--fw-bold); text-align:center;">
+                                    <div class="eq-term" style="display:flex; flex-direction:column; align-items:center;">
+                                        <span id="eq-oee" class="text-purple" style="font-size:var(--text-xl);">87.4%</span>
+                                        <span style="font-size:8px; color:var(--text-muted); font-weight:var(--fw-bold); letter-spacing:0.5px;">OVERALL OEE</span>
+                                    </div>
+                                    <div class="eq-op" style="color:var(--text-muted); font-size:var(--text-xl);">=</div>
+                                    <div class="eq-term" style="display:flex; flex-direction:column; align-items:center;">
+                                        <span id="eq-avail" class="text-primary">94.5%</span>
+                                        <span style="font-size:8px; color:var(--text-muted); font-weight:var(--fw-bold); letter-spacing:0.5px;">AVAILABILITY</span>
+                                    </div>
+                                    <div class="eq-op" style="color:var(--text-muted); font-size:var(--text-base);">×</div>
+                                    <div class="eq-term" style="display:flex; flex-direction:column; align-items:center;">
+                                        <span id="eq-perf" class="text-secondary">96.1%</span>
+                                        <span style="font-size:8px; color:var(--text-muted); font-weight:var(--fw-bold); letter-spacing:0.5px;">PERFORMANCE</span>
+                                    </div>
+                                    <div class="eq-op" style="color:var(--text-muted); font-size:var(--text-base);">×</div>
+                                    <div class="eq-term" style="display:flex; flex-direction:column; align-items:center;">
+                                        <span id="eq-yield" class="text-cyan">98.4%</span>
+                                        <span style="font-size:8px; color:var(--text-muted); font-weight:var(--fw-bold); letter-spacing:0.5px;">YIELD RATE</span>
+                                    </div>
+                                </div>
+                                <div class="oee-math-note" style="font-size:10px; color:var(--text-muted); text-align:center; max-width:85%; line-height:1.4;">
+                                    Calculated automatically as: Availability (Uptime) × Performance (Speed Ratio) × Yield (Quality Rate).
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Live Telemetry Stream Terminal -->
+                        <div class="bento-card terminal-card glow-cyan">
+                            <div class="card-header">
+                                <h2 class="card-title"><i data-lucide="terminal" class="text-cyan" style="vertical-align:middle; margin-right:6px; display:inline-block; width:18px; height:18px;"></i>Live Telemetry Activity Stream</h2>
+                                <span class="badge-live-tag" style="background:rgba(6,182,212,0.08); border-color:rgba(6,182,212,0.25);">Active Streams</span>
+                            </div>
+                            <div class="card-body terminal-body" style="padding:0; min-height:160px; display:flex; flex-direction:column;">
+                                <div class="terminal-console" id="terminal-log-console" style="background:rgba(15,10,36,0.3); border:1px solid var(--glass-border); border-radius:var(--radius-md); padding:var(--space-3) var(--space-4); height:160px; overflow-y:auto; font-family:var(--font-mono); font-size:10px; color:#a5f3fc; line-height:1.5; box-shadow:inset 0 0 10px rgba(0,0,0,0.5); flex:1;">
+                                    <div class="terminal-line" style="color:var(--text-muted);">[23:42:00] Init telemetry stream: listening to plant sensors...</div>
+                                    <div class="terminal-line">[23:42:01] IoT connection link stable on port 5000 (Z-Score: 0.15 Z)</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ALERTS SYSTEM VIEW -->
+                <div class="dashboard-view" id="view-alerts">
+                    <div class="view-header">
+                        <div class="header-titles">
+                            <h1 class="view-title">Active System Alerts</h1>
+                            <p class="view-subtitle">Consolidated alerts and diagnostics for Detroit Giga-Assembly Plant Alpha</p>
+                        </div>
+                    </div>
+                    <div class="bento-card alerts-board-card">
+                        <div class="alerts-table-container">
+                            <table class="alerts-table">
+                                <thead>
+                                    <tr>
+                                        <th>Severity</th>
+                                        <th>Component</th>
+                                        <th>Description</th>
+                                        <th>Timestamp</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="alerts-table-body">
+                                    <!-- Dynamic rows loaded via app.js -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <!-- MACHINE THERMAL TELEMETRY GAUGES -->
+                    <div class="bento-card glow-cyan" style="margin-top: var(--space-5);">
+                        <div class="card-header" style="display:flex; justify-content:space-between; align-items:center;">
+                            <h2 class="card-title">
+                                <i data-lucide="thermometer" class="text-cyan" style="vertical-align:middle; margin-right:6px; display:inline-block; width:18px; height:18px;"></i>
+                                Machine Core Thermal Telemetry Sensors
+                            </h2>
+                            <span class="badge-live-tag" style="background:rgba(6,182,212,0.08); border-color:rgba(6,182,212,0.25);">Live Temperature Stream</span>
+                        </div>
+                        <div class="card-body" style="display:grid; grid-template-columns: repeat(4, 1fr); gap:var(--space-4); margin-top:var(--space-3);">
+                            <div style="background:rgba(255,255,255,0.015); border:1px solid var(--glass-border); border-radius:var(--radius-md); padding:var(--space-3); text-align:center;">
+                                <span style="font-size:10px; font-weight:var(--fw-bold); color:var(--text-muted); display:block; margin-bottom:4px;">SCHULER HYDRAULIC PRESS</span>
+                                <span id="temp-press-val" style="font-family:var(--font-heading); font-size:var(--text-xl); font-weight:var(--fw-bold); color:#4ade80;">48.2°C</span>
+                                <span style="font-size:9px; color:var(--success); display:block; margin-top:2px;">Normal Heat Level</span>
+                            </div>
+                            <div style="background:rgba(255,255,255,0.015); border:1px solid var(--glass-border); border-radius:var(--radius-md); padding:var(--space-3); text-align:center;">
+                                <span style="font-size:10px; font-weight:var(--fw-bold); color:var(--text-muted); display:block; margin-bottom:4px;">ARC WELDING CELL A</span>
+                                <span id="temp-weld-val" style="font-family:var(--font-heading); font-size:var(--text-xl); font-weight:var(--fw-bold); color:#fbbf24;">65.4°C</span>
+                                <span style="font-size:9px; color:var(--warning); display:block; margin-top:2px;">Optimal Arc Temp</span>
+                            </div>
+                            <div style="background:rgba(255,255,255,0.015); border:1px solid var(--glass-border); border-radius:var(--radius-md); padding:var(--space-3); text-align:center;">
+                                <span style="font-size:10px; font-weight:var(--fw-bold); color:var(--text-muted); display:block; margin-bottom:4px;">PAINT OVEN B CORE</span>
+                                <span id="temp-oven-val" style="font-family:var(--font-heading); font-size:var(--text-xl); font-weight:var(--fw-bold); color:#c084fc;">185.0°C</span>
+                                <span style="font-size:9px; color:#c084fc; display:block; margin-top:2px;">Curing Ramp Active</span>
+                            </div>
+                            <div style="background:rgba(255,255,255,0.015); border:1px solid var(--glass-border); border-radius:var(--radius-md); padding:var(--space-3); text-align:center;">
+                                <span style="font-size:10px; font-weight:var(--fw-bold); color:var(--text-muted); display:block; margin-bottom:4px;">BATTERY PACK CELL</span>
+                                <span id="temp-pack-val" style="font-family:var(--font-heading); font-size:var(--text-xl); font-weight:var(--fw-bold); color:#38bdf8;">36.8°C</span>
+                                <span style="font-size:9px; color:#38bdf8; display:block; margin-top:2px;">Cooling Active</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- PRODUCTION MONITOR VIEW -->
+                <div class="dashboard-view" id="view-production">
+                    <div class="view-header">
+                        <div class="header-titles">
+                            <h1 class="view-title">Production Lines</h1>
+                            <p class="view-subtitle">Real-time line diagnostics and active run statuses</p>
+                        </div>
+                    </div>
+                    <div class="bento-grid-production" id="production-lines-grid">
+                        <!-- Dynamic content -->
+                    </div>
+                </div>
+
+                <!-- MAINTENANCE VIEW (ERP INTEGRATED) -->
+                <div class="dashboard-view" id="view-maintenance">
+                    <div class="view-header" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:var(--space-5);">
+                        <div class="header-titles">
+                            <h1 class="view-title">Predictive Maintenance Hub</h1>
+                            <p class="view-subtitle">ERP Asset Synced Work Orders and Procurement Management</p>
+                        </div>
+                        <div class="erp-sync-status" style="display:flex; align-items:center; gap:var(--space-2); background:rgba(16,185,129,0.08); border:1px solid rgba(16,185,129,0.25); padding:6px 12px; border-radius:var(--radius-md); font-family:var(--font-heading); font-size:var(--text-xs); font-weight:var(--fw-bold); color:var(--success);">
+                            <span class="pulse-dot" style="background:var(--success);"></span>
+                            SAP ERP Synced (Gateway: Connected)
+                        </div>
+                    </div>
+
+                    <!-- Maintenance KPI Bento Grid -->
+                    <div class="bento-grid-metrics" style="margin-bottom:var(--space-5);">
+                        <div class="bento-card card-metric glow-purple">
+                            <div class="metric-header">
+                                <span class="metric-title">MEAN TIME TO REPAIR (MTTR)</span>
+                                <div class="metric-icon-box bg-purple-subtle"><i data-lucide="wrench" class="text-purple"></i></div>
+                            </div>
+                            <div class="metric-body"><span class="metric-value">34 mins</span></div>
+                            <div class="metric-footer" style="font-size:10px; color:var(--success); font-weight:var(--fw-semibold);">-4.2% vs last month</div>
+                        </div>
+                        <div class="bento-card card-metric glow-cyan">
+                            <div class="metric-header">
+                                <span class="metric-title">MEAN TIME BETWEEN FAILURES (MTBF)</span>
+                                <div class="metric-icon-box bg-cyan-subtle"><i data-lucide="clock" class="text-cyan"></i></div>
+                            </div>
+                            <div class="metric-body"><span class="metric-value">142.8 hrs</span></div>
+                            <div class="metric-footer" style="font-size:10px; color:var(--success); font-weight:var(--fw-semibold);">+8.4 hrs vs baseline</div>
+                        </div>
+                        <div class="bento-card card-metric glow-amber">
+                            <div class="metric-header">
+                                <span class="metric-title">ERP WORK ORDERS COMPLETED</span>
+                                <div class="metric-icon-box bg-amber-subtle"><i data-lucide="file-check-2" class="text-warning"></i></div>
+                            </div>
+                            <div class="metric-body"><span class="metric-value" id="val-erp-wo-count">48</span></div>
+                            <div class="metric-footer" style="font-size:10px; color:var(--text-muted); font-weight:var(--fw-semibold);">Synced via SAP PM Module</div>
+                        </div>
+                    </div>
+
+                    <div style="display:grid; grid-template-columns: 1.8fr 1.2fr; gap:var(--space-5);">
+                        <!-- Work Orders Card -->
+                        <div class="bento-card glow-purple" style="padding:0; overflow:hidden;">
+                            <div class="card-header" style="padding:var(--space-4) var(--space-5) 0 var(--space-5);">
+                                <h2 class="card-title">SAP ERP Work Orders Registry</h2>
+                                <button class="btn btn-primary btn-sm" id="btn-create-wo">
+                                    <i data-lucide="plus-circle" style="width:14px; height:14px; margin-right:4px; display:inline-block;"></i>Create ERP Ticket
+                                </button>
+                            </div>
+                            <div class="alerts-table-container" style="padding:var(--space-4);">
+                                <table class="alerts-table" style="width:100%;">
+                                    <thead>
+                                        <tr>
+                                            <th>SAP ID</th>
+                                            <th>Asset Component</th>
+                                            <th>Maintenance Description</th>
+                                            <th>Technician</th>
+                                            <th>Status</th>
+                                            <th>Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="maintenance-wo-table-body">
+                                        <!-- Dynamic ERP Work Orders -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- Procurement Card -->
+                        <div class="bento-card glow-cyan" style="display:flex; flex-direction:column;">
+                            <div class="card-header">
+                                <h2 class="card-title">SAP MM Material Procurement</h2>
+                            </div>
+                            <div class="card-body" style="flex:1; display:flex; flex-direction:column; gap:var(--space-4);">
+                                <div style="background:rgba(255,255,255,0.015); border:1px solid var(--glass-border); border-radius:var(--radius-md); padding:var(--space-3); display:flex; flex-direction:column; gap:var(--space-3);">
+                                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                                        <span style="font-size:10px; font-weight:var(--fw-bold); color:var(--text-muted);">SPARE PART</span>
+                                        <span style="font-size:10px; font-weight:var(--fw-bold); color:var(--text-muted);">INVENTORY STATUS</span>
+                                    </div>
+                                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                                        <span style="font-size:var(--text-sm); font-weight:var(--fw-bold);">Proportional Valve Seals</span>
+                                        <span class="badge badge-danger" id="inv-valve-status">2 Rolls (Low)</span>
+                                    </div>
+                                    <button class="btn btn-outline btn-sm" id="btn-procure-valve" style="width:100%; border-color:rgba(6,182,212,0.3); background:rgba(6,182,212,0.02);">
+                                        <i data-lucide="shopping-cart" style="width:12px; height:12px; margin-right:4px; display:inline-block;"></i>Dispatch SAP Requisition
+                                    </button>
+                                    <div id="procure-valve-log" style="font-size:8px; font-family:var(--font-mono); color:var(--text-muted); text-align:center;">
+                                        Procurement idle. Waiting for trigger...
+                                    </div>
+                                </div>
+
+                                <div style="background:rgba(255,255,255,0.015); border:1px solid var(--glass-border); border-radius:var(--radius-md); padding:var(--space-3); display:flex; flex-direction:column; gap:var(--space-3);">
+                                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                                        <span style="font-size:10px; font-weight:var(--fw-bold); color:var(--text-muted);">SPARE PART</span>
+                                        <span style="font-size:10px; font-weight:var(--fw-bold); color:var(--text-muted);">INVENTORY STATUS</span>
+                                    </div>
+                                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                                        <span style="font-size:var(--text-sm); font-weight:var(--fw-bold);">Pre-preg Carbon Fiber Rolls</span>
+                                        <span class="badge badge-warning">340 Rolls (Refill Triggered)</span>
+                                    </div>
+                                    <button class="btn btn-outline btn-sm" id="btn-procure-cf" style="width:100%; border-color:rgba(6,182,212,0.3); background:rgba(6,182,212,0.02);">
+                                        <i data-lucide="shopping-cart" style="width:12px; height:12px; margin-right:4px; display:inline-block;"></i>Dispatch SAP Requisition
+                                    </button>
+                                    <div id="procure-cf-log" style="font-size:8px; font-family:var(--font-mono); color:var(--text-muted); text-align:center;">
+                                        Procurement idle. Waiting for trigger...
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- QUALITY QA VIEW -->
+                <div class="dashboard-view" id="view-quality">
+                    <div class="view-header" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:var(--space-5);">
+                        <div class="header-titles">
+                            <h1 class="view-title">Quality Assurance & Six Sigma</h1>
+                            <p class="view-subtitle">Cognex Vision AI Part Inspection and Defects Logs</p>
+                        </div>
+                        <div class="erp-sync-status" style="display:flex; align-items:center; gap:var(--space-2); background:rgba(16,185,129,0.08); border:1px solid rgba(16,185,129,0.25); padding:6px 12px; border-radius:var(--radius-md); font-family:var(--font-heading); font-size:var(--text-xs); font-weight:var(--fw-bold); color:var(--success);">
+                            <span class="pulse-dot" style="background:var(--success);"></span>
+                            Vision AI Engine: ACTIVE (99.8% Accuracy)
+                        </div>
+                    </div>
+
+                    <!-- Quality KPIs -->
+                    <div class="bento-grid-metrics" style="margin-bottom:var(--space-5);">
+                        <div class="bento-card card-metric glow-green">
+                            <div class="metric-header">
+                                <span class="metric-title">FIRST PASS YIELD (FPY)</span>
+                                <div class="metric-icon-box bg-green-subtle"><i data-lucide="award" class="text-success"></i></div>
+                            </div>
+                            <div class="metric-body"><span class="metric-value" id="val-fpy-metric">98.4%</span></div>
+                            <div class="metric-footer" style="font-size:10px; color:var(--success); font-weight:var(--fw-semibold);">+0.3% vs last shift</div>
+                        </div>
+                        <div class="bento-card card-metric glow-green">
+                            <div class="metric-header">
+                                <span class="metric-title">DEFECTS PER MILLION (DPMO)</span>
+                                <div class="metric-icon-box bg-green-subtle"><i data-lucide="shield-alert" class="text-success"></i></div>
+                            </div>
+                            <div class="metric-body"><span class="metric-value" id="val-dpmo-metric">120</span></div>
+                            <div class="metric-footer" style="font-size:10px; color:var(--success); font-weight:var(--fw-semibold);">-15 DPMO vs monthly target</div>
+                        </div>
+                        <div class="bento-card card-metric glow-green">
+                            <div class="metric-header">
+                                <span class="metric-title">QC SCANNING RATE</span>
+                                <div class="metric-icon-box bg-green-subtle"><i data-lucide="scan" class="text-success"></i></div>
+                            </div>
+                            <div class="metric-body"><span class="metric-value">45 parts/min</span></div>
+                            <div class="metric-footer" style="font-size:10px; color:var(--text-muted); font-weight:var(--fw-semibold);">Synced via Cognex Gateway</div>
+                        </div>
+                    </div>
+
+                    <div style="display:grid; grid-template-columns: 1.2fr 1.8fr; gap:var(--space-5);">
+                        <!-- Vision AI Scanner Simulation Console -->
+                        <div class="bento-card glow-green" style="display:flex; flex-direction:column;">
+                            <div class="card-header">
+                                <h2 class="card-title"><i data-lucide="camera" class="text-success" style="vertical-align:middle; margin-right:6px; display:inline-block; width:18px; height:18px;"></i>Cognex AI Scanner Live Feed</h2>
+                                <span class="badge-live-tag" style="background:rgba(16,185,129,0.08); border-color:rgba(16,185,129,0.25);">Live Stream</span>
+                            </div>
+                            <div class="card-body" style="flex:1; display:flex; flex-direction:column; gap:var(--space-4);">
+                                <div class="terminal-console" id="quality-scan-console" style="background:rgba(15,10,36,0.3); border:1px solid var(--glass-border); border-radius:var(--radius-md); padding:var(--space-3) var(--space-4); height:140px; overflow-y:auto; font-family:var(--font-mono); font-size:10px; color:#a7f3d0; line-height:1.5; box-shadow:inset 0 0 10px rgba(0,0,0,0.5);">
+                                    <div class="terminal-line" style="color:var(--text-muted);">[00:39:00] Cognex Scanner initialized. Calibration: OK.</div>
+                                </div>
+                                <button class="btn btn-outline btn-sm" id="btn-trigger-defect" style="width:100%; border-color:rgba(16,185,129,0.3); background:rgba(16,185,129,0.02); height:32px; justify-content:center;">
+                                    <i data-lucide="alert-octagon" class="text-success" style="width:14px; height:14px; margin-right:4px; display:inline-block;"></i>
+                                    <span>Simulate QC Defect Detect</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Defects Hold Table -->
+                        <div class="bento-card glow-green" style="padding:0; overflow:hidden;">
+                            <div class="card-header" style="padding:var(--space-4) var(--space-5) 0 var(--space-5);">
+                                <h2 class="card-title">Quarantine & Defect Hold Log</h2>
+                            </div>
+                            <div class="alerts-table-container" style="padding:var(--space-4);">
+                                <table class="alerts-table" style="width:100%;">
+                                    <thead>
+                                        <tr>
+                                            <th>Defect ID</th>
+                                            <th>Part Type</th>
+                                            <th>Defect Category</th>
+                                            <th>Detection Time</th>
+                                            <th>Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="quality-hold-table-body">
+                                        <!-- Dynamic Quarantine Logs -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- INVENTORY MATERIALS VIEW -->
+                <div class="dashboard-view" id="view-inventory">
+                    <div class="view-header" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:var(--space-5);">
+                        <div class="header-titles">
+                            <h1 class="view-title">Material Stock & Logistics</h1>
+                            <p class="view-subtitle">Real-time supply chain warehouse monitoring</p>
+                        </div>
+                        <div class="erp-sync-status" style="display:flex; align-items:center; gap:var(--space-2); background:rgba(245,158,11,0.08); border:1px solid rgba(245,158,11,0.25); padding:6px 12px; border-radius:var(--radius-md); font-family:var(--font-heading); font-size:var(--text-xs); font-weight:var(--fw-bold); color:var(--warning);">
+                            <span class="pulse-dot" style="background:var(--warning);"></span>
+                            SAP Material Management Gateway: Synced
+                        </div>
+                    </div>
+
+                    <!-- Inventory Levels Map -->
+                    <div style="display:grid; grid-template-columns: 2fr 1fr; gap:var(--space-5);">
+                        <!-- Warehouse Levels Panel -->
+                        <div class="bento-card glow-amber" style="padding:0; overflow:hidden;">
+                            <div class="card-header" style="padding:var(--space-4) var(--space-5) 0 var(--space-5);">
+                                <h2 class="card-title">Real-Time Material Stock Levels</h2>
+                            </div>
+                            <div style="padding:var(--space-4) var(--space-5);" id="inventory-materials-container">
+                                <!-- Inventory Level progress widgets loaded via JS -->
+                            </div>
+                        </div>
+
+                        <!-- SAP MM Purchase Requisitions Table -->
+                        <div class="bento-card glow-amber" style="display:flex; flex-direction:column;">
+                            <div class="card-header">
+                                <h2 class="card-title">SAP Purchase Orders (PO)</h2>
+                            </div>
+                            <div class="card-body" style="padding:0 var(--space-4) var(--space-4) var(--space-4); flex:1; display:flex; flex-direction:column;">
+                                <div class="alerts-table-container" style="flex:1;">
+                                    <table class="alerts-table" style="width:100%;">
+                                        <thead>
+                                            <tr>
+                                                <th>PO Number</th>
+                                                <th>Material</th>
+                                                <th>Qty</th>
+                                                <th>Status</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="inventory-po-table-body">
+                                            <!-- Dynamic SAP Purchase Orders -->
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ANALYTICS INTELLIGENCE VIEW -->
+                <div class="dashboard-view" id="view-analytics">
+                    <div class="view-header" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:var(--space-5);">
+                        <div class="header-titles">
+                            <h1 class="view-title">Manufacturing Analytics & Shift Intelligence</h1>
+                            <p class="view-subtitle">Comparative shift trends and Monte Carlo OEE risk distribution</p>
+                        </div>
+                        <div class="erp-sync-status" style="display:flex; align-items:center; gap:var(--space-2); background:rgba(99,102,241,0.08); border:1px solid rgba(99,102,241,0.25); padding:6px 12px; border-radius:var(--radius-md); font-family:var(--font-heading); font-size:var(--text-xs); font-weight:var(--fw-bold); color:#818cf8;">
+                            <span class="pulse-dot" style="background:#818cf8;"></span>
+                            Analytics Engine: ACTIVE (Monte Carlo 1,000 Iterations)
+                        </div>
+                    </div>
+
+                    <!-- Analytics KPIs -->
+                    <div class="bento-grid-metrics" style="margin-bottom:var(--space-5);">
+                        <div class="bento-card card-metric glow-purple">
+                            <div class="metric-header">
+                                <span class="metric-title">MONTE CARLO CONFIDENCE</span>
+                                <div class="metric-icon-box bg-purple-subtle"><i data-lucide="bar-chart-3" class="text-purple"></i></div>
+                            </div>
+                            <div class="metric-body"><span class="metric-value">94.8%</span></div>
+                            <div class="metric-footer" style="font-size:10px; color:var(--success); font-weight:var(--fw-semibold);">&gt;85% OEE Probability</div>
+                        </div>
+                        <div class="bento-card card-metric glow-purple">
+                            <div class="metric-header">
+                                <span class="metric-title">SHIFT VARIANCE INDEX</span>
+                                <div class="metric-icon-box bg-purple-subtle"><i data-lucide="trending-up" class="text-purple"></i></div>
+                            </div>
+                            <div class="metric-body"><span class="metric-value">1.2%</span></div>
+                            <div class="metric-footer" style="font-size:10px; color:var(--success); font-weight:var(--fw-semibold);">Tight variance tolerance</div>
+                        </div>
+                        <div class="bento-card card-metric glow-purple">
+                            <div class="metric-header">
+                                <span class="metric-title">ENERGY EFFICIENCY RATIO</span>
+                                <div class="metric-icon-box bg-purple-subtle"><i data-lucide="zap" class="text-purple"></i></div>
+                            </div>
+                            <div class="metric-body"><span class="metric-value">$0.14 / unit</span></div>
+                            <div class="metric-footer" style="font-size:10px; color:var(--success); font-weight:var(--fw-semibold);">-8% energy vs baseline</div>
+                        </div>
+                    </div>
+
+                    <div style="display:grid; grid-template-columns: 1.8fr 1.2fr; gap:var(--space-5);">
+                        <!-- Comparative Shift Table -->
+                        <div class="bento-card glow-purple" style="padding:0; overflow:hidden;">
+                            <div class="card-header" style="padding:var(--space-4) var(--space-5) 0 var(--space-5);">
+                                <h2 class="card-title">Comparative Shift Performance Matrix</h2>
+                            </div>
+                            <div class="alerts-table-container" style="padding:var(--space-4);">
+                                <table class="alerts-table" style="width:100%;">
+                                    <thead>
+                                        <tr>
+                                            <th>Shift</th>
+                                            <th>Supervisor</th>
+                                            <th>Units Produced</th>
+                                            <th>Shift OEE</th>
+                                            <th>Downtime</th>
+                                            <th>Status</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="analytics-shift-table-body">
+                                        <!-- Dynamic shift comparison rows -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- Monte Carlo Simulation Panel -->
+                        <div class="bento-card glow-purple" style="display:flex; flex-direction:column;">
+                            <div class="card-header">
+                                <h2 class="card-title">Monte Carlo Risk Simulator</h2>
+                            </div>
+                            <div class="card-body" style="flex:1; display:flex; flex-direction:column; gap:var(--space-4);">
+                                <div class="terminal-console" id="monte-carlo-console" style="background:rgba(15,10,36,0.3); border:1px solid var(--glass-border); border-radius:var(--radius-md); padding:var(--space-3) var(--space-4); height:140px; overflow-y:auto; font-family:var(--font-mono); font-size:10px; color:#c084fc; line-height:1.5;">
+                                    <div class="terminal-line" style="color:var(--text-muted);">[00:48:00] Monte Carlo Engine ready. Iteration count: 1,000 runs.</div>
+                                </div>
+                                <button class="btn btn-primary btn-sm" id="btn-run-monte-carlo" style="width:100%; height:34px; justify-content:center;">
+                                    <i data-lucide="play" style="width:14px; height:14px; margin-right:4px; display:inline-block;"></i>
+                                    <span>Run 1,000 Iteration Risk Simulation</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- RECOMMENDATIONS INTELLIGENCE VIEW -->
+                <div class="dashboard-view" id="view-recommendations">
+                    <div class="view-header" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:var(--space-5);">
+                        <div class="header-titles">
+                            <h1 class="view-title">Prescriptive AI Recommendations</h1>
+                            <p class="view-subtitle">Automated advisory directives to prevent downtime and optimize throughput</p>
+                        </div>
+                        <div class="erp-sync-status" style="display:flex; align-items:center; gap:var(--space-2); background:rgba(217,70,239,0.08); border:1px solid rgba(217,70,239,0.25); padding:6px 12px; border-radius:var(--radius-md); font-family:var(--font-heading); font-size:var(--text-xs); font-weight:var(--fw-bold); color:#e879f9;">
+                            <span class="pulse-dot" style="background:#e879f9;"></span>
+                            AI Advisor Engine: 3 Active Directives
+                        </div>
+                    </div>
+
+                    <!-- Recommendations List Grid -->
+                    <div style="display:flex; flex-direction:column; gap:var(--space-4);" id="recommendations-cards-container">
+                        <!-- Dynamic Recommendation Cards loaded via JS -->
+                    </div>
+                </div>
+
+                <!-- DATA INGESTION HUB VIEW (MANAGEMENT) -->
+                <div class="dashboard-view" id="view-upload">
+                    <div class="view-header" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:var(--space-5);">
+                        <div class="header-titles">
+                            <h1 class="view-title" style="display:flex; align-items:center; gap:8px;">
+                                <i data-lucide="upload-cloud" class="text-cyan" style="width:24px; height:24px; display:inline-block;"></i>
+                                Manufacturing Data Ingestion Hub
+                            </h1>
+                            <p class="view-subtitle">Upload telemetry datasets (CSV, XLSX, JSON) or connect PostgreSQL database pipelines</p>
+                        </div>
+                        <div class="erp-sync-status" style="display:flex; align-items:center; gap:var(--space-2); background:rgba(6,182,212,0.08); border:1px solid rgba(6,182,212,0.25); padding:6px 12px; border-radius:var(--radius-md); font-family:var(--font-heading); font-size:var(--text-xs); font-weight:var(--fw-bold); color:var(--text-cyan);">
+                            <span class="pulse-dot" style="background:var(--accent-secondary);"></span>
+                            Pipeline Gateway: READY
+                        </div>
+                    </div>
+
+                    <div style="display:grid; grid-template-columns: 1.6fr 1.4fr; gap:var(--space-5);">
+                        <!-- Left Card: File Drag & Drop Upload Zone -->
+                        <div class="bento-card glow-cyan" style="display:flex; flex-direction:column; justify-content:space-between;">
+                            <div>
+                                <div class="card-header" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:var(--space-4);">
+                                    <h2 class="card-title">File Drag & Drop Upload Zone</h2>
+                                    <span class="badge" style="background:rgba(6,182,212,0.1); color:var(--text-cyan); font-weight:bold; font-size:10px;">● Supports CSV, XLSX, JSON</span>
+                                </div>
+
+                                <input type="file" id="dataset-file-input" accept=".csv,.xlsx,.json" style="display:none;" />
+
+                                <div id="upload-dropzone" style="border:2px dashed rgba(6,182,212,0.3); border-radius:var(--radius-lg); padding:var(--space-6) var(--space-4); text-align:center; background:rgba(15,10,36,0.3); cursor:pointer; transition:all 0.3s ease; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:var(--space-3); min-height:180px;">
+                                    <div style="width:52px; height:52px; border-radius:50%; background:rgba(6,182,212,0.1); display:flex; align-items:center; justify-content:center; color:var(--text-cyan);">
+                                        <i data-lucide="file-spreadsheet" style="width:26px; height:26px;"></i>
+                                    </div>
+                                    <div style="display:flex; flex-direction:column; gap:4px;">
+                                        <span style="font-family:var(--font-heading); font-size:var(--text-sm); font-weight:var(--fw-bold); color:var(--text-primary);">Drop manufacturing CSV/Excel files here or click to browse</span>
+                                        <span style="font-size:11px; color:var(--text-muted);">Maximum file size: 500 MB per batch</span>
+                                    </div>
+                                    <div id="dropzone-filename" style="display:none; font-family:var(--font-mono); font-size:11px; color:var(--success); font-weight:bold;"></div>
+                                </div>
+                            </div>
+
+                            <button class="btn btn-primary" id="btn-process-upload" style="width:100%; margin-top:var(--space-4); height:38px; justify-content:center; background:linear-gradient(135deg, #06b6d4, #3b82f6);">
+                                <i data-lucide="arrow-right-circle" style="width:16px; height:16px; margin-right:6px; display:inline-block;"></i>
+                                <span>Proceed to Schema Ingestion</span>
+                            </button>
+                        </div>
+
+                        <!-- Right Card: Database Connector -->
+                        <div class="bento-card glow-cyan" style="display:flex; flex-direction:column; justify-content:space-between;">
+                            <div>
+                                <div class="card-header" style="margin-bottom:var(--space-4);">
+                                    <h2 class="card-title" style="display:flex; align-items:center; gap:8px;">
+                                        <i data-lucide="database" class="text-cyan" style="width:18px; height:18px; display:inline-block;"></i>
+                                        Database Connector
+                                    </h2>
+                                </div>
+
+                                <div style="display:flex; flex-direction:column; gap:var(--space-4);">
+                                    <div>
+                                        <label style="display:block; font-size:10px; font-weight:var(--fw-bold); color:var(--text-muted); margin-bottom:6px; text-transform:uppercase; letter-spacing:0.5px;">Database Type</label>
+                                        <select id="db-type-select" style="width:100%; background:rgba(255,255,255,0.03); border:1px solid var(--glass-border); border-radius:var(--radius-md); padding:10px 12px; color:var(--text-primary); font-family:var(--font-heading); font-size:var(--text-sm);">
+                                            <option value="postgres">PostgreSQL Telemetry DB</option>
+                                            <option value="influx">InfluxDB Time-Series Engine</option>
+                                            <option value="mongo">MongoDB Sensor Vault</option>
+                                            <option value="sap">SAP HANA Telemetry Gateway</option>
+                                        </select>
+                                    </div>
+
+                                    <div>
+                                        <label style="display:block; font-size:10px; font-weight:var(--fw-bold); color:var(--text-muted); margin-bottom:6px; text-transform:uppercase; letter-spacing:0.5px;">Host / Connection String</label>
+                                        <input type="text" id="db-conn-str" value="postgresql://admin:***@db.factoryos.internal:5432/telemetry" style="width:100%; background:rgba(255,255,255,0.03); border:1px solid var(--glass-border); border-radius:var(--radius-md); padding:10px 12px; color:var(--accent-secondary); font-family:var(--font-mono); font-size:11px;" />
+                                    </div>
+
+                                    <div class="terminal-console" id="db-conn-log" style="background:rgba(15,10,36,0.4); border:1px solid var(--glass-border); border-radius:var(--radius-md); padding:var(--space-3); height:80px; overflow-y:auto; font-family:var(--font-mono); font-size:10px; color:var(--text-muted);">
+                                        <div class="terminal-line">[00:52:00] Database connector idle. Awaiting handshake test...</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <button class="btn btn-outline" id="btn-test-db" style="width:100%; margin-top:var(--space-4); height:38px; justify-content:center; border-color:rgba(6,182,212,0.4);">
+                                <i data-lucide="check-circle" class="text-cyan" style="width:16px; height:16px; margin-right:6px; display:inline-block;"></i>
+                                <span>Test DB Connection</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- REPORTS VIEW -->
+                <div class="dashboard-view" id="view-reports">
+                    <div class="view-header" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:var(--space-5);">
+                        <div class="header-titles">
+                            <h1 class="view-title" style="display:flex; align-items:center; gap:8px;">
+                                <i data-lucide="file-text" class="text-purple" style="width:24px; height:24px; display:inline-block;"></i>
+                                Automated Manufacturing Reports
+                            </h1>
+                            <p class="view-subtitle">Generate Executive PDF Technical Reports, Six Sigma Quality Audits, and Shift Summaries</p>
+                        </div>
+                        <div class="erp-sync-status" style="display:flex; align-items:center; gap:var(--space-2); background:rgba(139,92,246,0.08); border:1px solid rgba(139,92,246,0.25); padding:6px 12px; border-radius:var(--radius-md); font-family:var(--font-heading); font-size:var(--text-xs); font-weight:var(--fw-bold); color:#c084fc;">
+                            <span class="pulse-dot" style="background:#c084fc;"></span>
+                            Report Engine: READY
+                        </div>
+                    </div>
+
+                    <div style="display:grid; grid-template-columns: 1fr 2fr; gap:var(--space-5);">
+                        <!-- Quick Report Generator Panel -->
+                        <div class="bento-card glow-purple" style="display:flex; flex-direction:column; gap:var(--space-4);">
+                            <div class="card-header">
+                                <h2 class="card-title">Generate On-Demand Report</h2>
+                            </div>
+                            <div style="display:flex; flex-direction:column; gap:var(--space-3);">
+                                <button class="btn btn-primary" id="btn-generate-pdf-report" style="justify-content:flex-start; padding:12px 16px; background:linear-gradient(135deg, #8b5cf6, #ec4899);" onclick="showToast('Generating Factory_OS_Data_AI_ML_Report.pdf...', 'success')">
+                                    <i data-lucide="file-down" style="width:18px; height:18px; margin-right:8px;"></i>
+                                    <div style="text-align:left;">
+                                        <span style="display:block; font-weight:bold;">Factory OS PDF Manual</span>
+                                        <span style="font-size:10px; opacity:0.8;">Full AI/ML & Datasets Audit PDF</span>
+                                    </div>
+                                </button>
+                                <button class="btn btn-outline" id="btn-generate-csv-audit" style="justify-content:flex-start; padding:12px 16px; border-color:rgba(139,92,246,0.4);" onclick="showToast('Exporting Six Sigma Quality CSV audit log...', 'info')">
+                                    <i data-lucide="table" style="width:18px; height:18px; margin-right:8px; color:#c084fc;"></i>
+                                    <div style="text-align:left;">
+                                        <span style="display:block; font-weight:bold;">Six Sigma Quality CSV</span>
+                                        <span style="font-size:10px; color:var(--text-muted);">Defect log & DPMO records</span>
+                                    </div>
+                                </button>
+                                <button class="btn btn-outline" id="btn-generate-sap-excel" style="justify-content:flex-start; padding:12px 16px; border-color:rgba(139,92,246,0.4);" onclick="showToast('Exporting SAP PM Work Orders XLSX spreadsheet...', 'info')">
+                                    <i data-lucide="sheet" style="width:18px; height:18px; margin-right:8px; color:#38bdf8;"></i>
+                                    <div style="text-align:left;">
+                                        <span style="display:block; font-weight:bold;">SAP PM Work Orders XLSX</span>
+                                        <span style="font-size:10px; color:var(--text-muted);">Maintenance tickets archive</span>
+                                    </div>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Saved Reports Archive Table -->
+                        <div class="bento-card glow-purple">
+                            <div class="card-header" style="margin-bottom:var(--space-4);">
+                                <h2 class="card-title">Saved Reports Archive</h2>
+                            </div>
+                            <div class="alerts-table-container">
+                                <table class="alerts-table" style="width:100%;">
+                                    <thead>
+                                        <tr>
+                                            <th>Report Name</th>
+                                            <th>Format</th>
+                                            <th>Size</th>
+                                            <th>Generated</th>
+                                            <th>Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td style="font-weight:bold; color:var(--text-primary);">Factory_OS_Data_AI_ML_Report.pdf</td>
+                                            <td><span class="badge" style="background:rgba(239,68,68,0.1); color:#f87171;">PDF</span></td>
+                                            <td style="font-family:var(--font-mono); font-size:11px;">1.2 MB</td>
+                                            <td style="font-size:11px; color:var(--text-muted);">Today 00:50</td>
+                                            <td><button class="btn btn-outline btn-sm" onclick="showToast('Opening Factory_OS_Data_AI_ML_Report.pdf...', 'info')">Download</button></td>
+                                        </tr>
+                                        <tr>
+                                            <td style="font-weight:bold; color:var(--text-primary);">Shift_Alpha_OEE_Summary_Q3.pdf</td>
+                                            <td><span class="badge" style="background:rgba(239,68,68,0.1); color:#f87171;">PDF</span></td>
+                                            <td style="font-family:var(--font-mono); font-size:11px;">840 KB</td>
+                                            <td style="font-size:11px; color:var(--text-muted);">Yesterday</td>
+                                            <td><button class="btn btn-outline btn-sm" onclick="showToast('Downloading Shift_Alpha_OEE_Summary_Q3.pdf...', 'info')">Download</button></td>
+                                        </tr>
+                                        <tr>
+                                            <td style="font-weight:bold; color:var(--text-primary);">Cognex_Vision_AI_Defects.csv</td>
+                                            <td><span class="badge" style="background:rgba(34,197,94,0.1); color:#4ade80;">CSV</span></td>
+                                            <td style="font-family:var(--font-mono); font-size:11px;">320 KB</td>
+                                            <td style="font-size:11px; color:var(--text-muted);">Aug 02, 2026</td>
+                                            <td><button class="btn btn-outline btn-sm" onclick="showToast('Downloading Cognex_Vision_AI_Defects.csv...', 'info')">Download</button></td>
+                                        </tr>
+                                        <tr>
+                                            <td style="font-weight:bold; color:var(--text-primary);">SAP_ERP_Material_Requisitions.xlsx</td>
+                                            <td><span class="badge" style="background:rgba(56,189,248,0.1); color:#38bdf8;">XLSX</span></td>
+                                            <td style="font-family:var(--font-mono); font-size:11px;">510 KB</td>
+                                            <td style="font-size:11px; color:var(--text-muted);">Aug 01, 2026</td>
+                                            <td><button class="btn btn-outline btn-sm" onclick="showToast('Downloading SAP_ERP_Material_Requisitions.xlsx...', 'info')">Download</button></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- KNOWLEDGE BASE VIEW -->
+                <div class="dashboard-view" id="view-knowledge">
+                    <div class="view-header" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:var(--space-5);">
+                        <div class="header-titles">
+                            <h1 class="view-title" style="display:flex; align-items:center; gap:8px;">
+                                <i data-lucide="book-open" class="text-green" style="width:24px; height:24px; display:inline-block;"></i>
+                                Operational Knowledge Base
+                            </h1>
+                            <p class="view-subtitle">Standard Operating Procedures, AI Troubleshooting Guides, & Machine Manuals</p>
+                        </div>
+                        <div class="erp-sync-status" style="display:flex; align-items:center; gap:var(--space-2); background:rgba(34,197,94,0.08); border:1px solid rgba(34,197,94,0.25); padding:6px 12px; border-radius:var(--radius-md); font-family:var(--font-heading); font-size:var(--text-xs); font-weight:var(--fw-bold); color:var(--success);">
+                            <span class="pulse-dot" style="background:var(--success);"></span>
+                            SOP Docs: 12 Active Manuals
+                        </div>
+                    </div>
+
+                    <!-- SOP Knowledge Cards Grid -->
+                    <div style="display:grid; grid-template-columns: repeat(2, 1fr); gap:var(--space-5);">
+                        <div class="bento-card glow-green">
+                            <div class="card-header" style="display:flex; justify-content:space-between; align-items:center;">
+                                <h2 class="card-title">SOP-104: Schuler Hydraulic Press Maintenance</h2>
+                                <span class="badge" style="background:rgba(34,197,94,0.1); color:#4ade80;">Maintenance</span>
+                            </div>
+                            <p style="font-size:var(--text-xs); color:var(--text-muted); margin:var(--space-3) 0;">Step-by-step procedure for replacing proportional valve seals during 210 Bar pressure decay alerts.</p>
+                            <button class="btn btn-outline btn-sm" style="width:100%; border-color:rgba(34,197,94,0.3);" onclick="showToast('SOP-104 MANUAL:\n1. Isolate Press B-2 power.\n2. Depressurize manifold to 0 Bar.\n3. Replace seals with Part #SEAL-9902.', 'info')">Read Full SOP Guide</button>
+                        </div>
+
+                        <div class="bento-card glow-green">
+                            <div class="card-header" style="display:flex; justify-content:space-between; align-items:center;">
+                                <h2 class="card-title">SOP-208: Cognex Vision AI Camera Calibration</h2>
+                                <span class="badge" style="background:rgba(6,182,212,0.1); color:#38bdf8;">Quality AI</span>
+                            </div>
+                            <p style="font-size:var(--text-xs); color:var(--text-muted); margin:var(--space-3) 0;">Calibration protocols for Cognex camera sensors to maintain &lt;3.4 DPMO Six Sigma defect detection.</p>
+                            <button class="btn btn-outline btn-sm" style="width:100%; border-color:rgba(34,197,94,0.3);" onclick="showToast('SOP-208 MANUAL:\n1. Clean lens optics.\n2. Run 50-sample calibration test.\n3. Verify threshold confidence > 98.5%.', 'info')">Read Full SOP Guide</button>
+                        </div>
+
+                        <div class="bento-card glow-green">
+                            <div class="card-header" style="display:flex; justify-content:space-between; align-items:center;">
+                                <h2 class="card-title">SOP-302: SAP NetWeaver ERP Requisition Pipeline</h2>
+                                <span class="badge" style="background:rgba(139,92,246,0.1); color:#c084fc;">ERP Sync</span>
+                            </div>
+                            <p style="font-size:var(--text-xs); color:var(--text-muted); margin:var(--space-3) 0;">Integration architecture between Factory OS REST APIs and SAP MM/PM BAPI purchase order endpoints.</p>
+                            <button class="btn btn-outline btn-sm" style="width:100%; border-color:rgba(34,197,94,0.3);" onclick="showToast('SOP-302 MANUAL:\nSAP NetWeaver endpoints listen on /api/sap/po. Purchase Orders auto-sync when inventory reaches &lt;25%.', 'info')">Read Full SOP Guide</button>
+                        </div>
+
+                        <div class="bento-card glow-green">
+                            <div class="card-header" style="display:flex; justify-content:space-between; align-items:center;">
+                                <h2 class="card-title">SOP-401: ARIMA OEE Trend & Z-Score Tuning</h2>
+                                <span class="badge" style="background:rgba(245,158,11,0.1); color:#fbbf24;">ML Models</span>
+                            </div>
+                            <p style="font-size:var(--text-xs); color:var(--text-muted); margin:var(--space-3) 0;">Mathematical formulas governing logistic regression failure risk models and 6-shift forecast extensions.</p>
+                            <button class="btn btn-outline btn-sm" style="width:100%; border-color:rgba(34,197,94,0.3);" onclick="showToast('SOP-401 MANUAL:\nZ-Score = (|Speed-12|*0.42) + (|Pressure-210|*0.022) + 0.15. Triggers warning if Z > 2.25.', 'info')">Read Full SOP Guide</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SETTINGS VIEW -->
+                <div class="dashboard-view" id="view-settings">
+                    <div class="view-header" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:var(--space-5);">
+                        <div class="header-titles">
+                            <h1 class="view-title" style="display:flex; align-items:center; gap:8px;">
+                                <i data-lucide="settings" class="text-amber" style="width:24px; height:24px; display:inline-block;"></i>
+                                Factory OS System Settings
+                            </h1>
+                            <p class="view-subtitle">Configure IoT Sampling Rates, Anomaly Sensitivity Thresholds, & SAP ERP Gateways</p>
+                        </div>
+                        <div class="erp-sync-status" style="display:flex; align-items:center; gap:var(--space-2); background:rgba(245,158,11,0.08); border:1px solid rgba(245,158,11,0.25); padding:6px 12px; border-radius:var(--radius-md); font-family:var(--font-heading); font-size:var(--text-xs); font-weight:var(--fw-bold); color:#fbbf24;">
+                            <span class="pulse-dot" style="background:#fbbf24;"></span>
+                            System Config: SAVED
+                        </div>
+                    </div>
+
+                    <div class="bento-card glow-amber" style="display:flex; flex-direction:column; gap:var(--space-5); max-width:800px;">
+                        <div>
+                            <h2 class="card-title" style="margin-bottom:var(--space-4);">IoT Telemetry Sampling Frequency</h2>
+                            <div style="display:flex; gap:var(--space-4);">
+                                <label style="display:flex; align-items:center; gap:8px; cursor:pointer; background:rgba(255,255,255,0.02); padding:10px 14px; border:1px solid var(--glass-border); border-radius:var(--radius-md);">
+                                    <input type="radio" name="telemetry-freq" value="100" checked />
+                                    <span style="font-weight:bold; font-size:var(--text-xs);">100 Hz High Speed (Live Stream)</span>
+                                </label>
+                                <label style="display:flex; align-items:center; gap:8px; cursor:pointer; background:rgba(255,255,255,0.02); padding:10px 14px; border:1px solid var(--glass-border); border-radius:var(--radius-md);">
+                                    <input type="radio" name="telemetry-freq" value="50" />
+                                    <span style="font-weight:bold; font-size:var(--text-xs);">50 Hz Standard</span>
+                                </label>
+                                <label style="display:flex; align-items:center; gap:8px; cursor:pointer; background:rgba(255,255,255,0.02); padding:10px 14px; border:1px solid var(--glass-border); border-radius:var(--radius-md);">
+                                    <input type="radio" name="telemetry-freq" value="10" />
+                                    <span style="font-weight:bold; font-size:var(--text-xs);">10 Hz Low Bandwidth</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <div>
+                            <h2 class="card-title" style="margin-bottom:var(--space-2);">AI Anomaly Sensitivity Threshold (Z-Score)</h2>
+                            <div style="display:flex; align-items:center; gap:var(--space-4);">
+                                <input type="range" min="1.5" max="3.5" step="0.05" value="2.25" id="setting-zscore-slider" style="flex:1;" oninput="document.getElementById('zscore-val-label').textContent = this.value + ' Z'" />
+                                <span id="zscore-val-label" style="font-family:var(--font-mono); font-weight:bold; color:#fbbf24;">2.25 Z</span>
+                            </div>
+                        </div>
+
+                        <div>
+                            <h2 class="card-title" style="margin-bottom:var(--space-2);">Target OEE Benchmark Threshold</h2>
+                            <div style="display:flex; align-items:center; gap:var(--space-4);">
+                                <input type="number" min="70" max="98" value="95.0" id="setting-benchmark-val" style="width:120px; background:rgba(255,255,255,0.03); border:1px solid var(--glass-border); border-radius:var(--radius-md); padding:8px 12px; color:var(--text-primary); font-family:var(--font-mono); font-weight:bold;" />
+                                <span style="font-size:var(--text-xs); color:var(--text-muted);">Enforced minimum compliance score (% OEE)</span>
+                            </div>
+                        </div>
+
+                        <button class="btn btn-primary" id="btn-save-settings" style="height:40px; justify-content:center; background:linear-gradient(135deg, #f59e0b, #d97706); margin-top:var(--space-3);" onclick="showToast('SYSTEM CONFIGURATION SAVED: IoT sampling frequency, Z-Score sensitivity, and Benchmark threshold updated successfully!', 'success')">
+                            <i data-lucide="save" style="width:16px; height:16px; margin-right:6px; display:inline-block;"></i>
+                            <span>Save Configuration Settings</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- AI COPILOT SLIDE DRAWER -->
+        <aside class="ai-drawer" id="ai-drawer">
+            <div class="ai-drawer-header">
+                <div class="ai-drawer-title-box">
+                    <i data-lucide="bot" class="ai-header-icon"></i>
+                    <div>
+                        <span class="ai-title">Factory AI Copilot</span>
+                        <span class="ai-subtitle">Predictive & Advisory Assistant</span>
+                    </div>
+                </div>
+                <button class="close-btn" id="btn-close-copilot" aria-label="Close panel">
+                    <i data-lucide="x"></i>
+                </button>
+            </div>
+            
+            <div class="ai-drawer-content" id="ai-chat-messages">
+                <!-- Greeting message -->
+                <div class="chat-msg system">
+                    <div class="msg-avatar"><i data-lucide="bot"></i></div>
+                    <div class="msg-bubble-wrapper">
+                        <div class="msg-bubble">
+                            Hello Alexander. I am monitoring the **Detroit Giga-Assembly Plant Alpha** system telemetry. 
+                            <br><br>
+                            I detected a critical issue:
+                            * **Schuler Press Hydraulic Pressure Decay** (Cylinder B-2 pressure variance).
+                            <br>
+                            How can I help you resolve this or check other system logs today?
+                        </div>
+                        <span class="msg-time">Just now</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="ai-drawer-footer">
+                <!-- Prompt Suggestion Chips -->
+                <div class="chat-chips-container" style="display:flex; gap:var(--space-2); overflow-x:auto; padding-bottom:var(--space-2); margin-bottom:var(--space-2); scrollbar-width:none; -webkit-overflow-scrolling:touch;">
+                    <button class="chat-chip-btn" data-prompt="Analyze Schuler Press vibration anomaly" style="flex-shrink:0; background:rgba(6,182,212,0.06); border:1px solid rgba(6,182,212,0.15); border-radius:var(--radius-full); padding:4px 10px; font-size:9px; color:var(--text-secondary); font-weight:var(--fw-semibold); cursor:pointer; transition:all var(--duration-fast);">
+                        🔎 Press Anomaly
+                    </button>
+                    <button class="chat-chip-btn" data-prompt="Show 6-hour OEE forecast" style="flex-shrink:0; background:rgba(6,182,212,0.06); border:1px solid rgba(6,182,212,0.15); border-radius:var(--radius-full); padding:4px 10px; font-size:9px; color:var(--text-secondary); font-weight:var(--fw-semibold); cursor:pointer; transition:all var(--duration-fast);">
+                        📈 OEE Forecast
+                    </button>
+                    <button class="chat-chip-btn" data-prompt="Inventory status of Carbon Fiber rolls" style="flex-shrink:0; background:rgba(6,182,212,0.06); border:1px solid rgba(6,182,212,0.15); border-radius:var(--radius-full); padding:4px 10px; font-size:9px; color:var(--text-secondary); font-weight:var(--fw-semibold); cursor:pointer; transition:all var(--duration-fast);">
+                        📦 Carbon Fiber
+                    </button>
+                </div>
+                <div class="chat-input-wrapper">
+                    <textarea placeholder="Ask AI Copilot for troubleshooting advice..." id="chat-input-text"></textarea>
+                    <button class="send-btn" id="btn-send-message" aria-label="Send">
+                        <i data-lucide="send"></i>
+                    </button>
+                </div>
+            </div>
+        </aside>
+    </div>
+
+    <!-- QUICK ACTION MODAL -->
+    <div class="modal-overlay" id="quick-action-modal">
+        <div class="modal-box">
+            <div class="modal-header">
+                <h3 class="modal-title">Trigger Simulation Command</h3>
+                <button class="close-btn" id="btn-close-modal"><i data-lucide="x"></i></button>
+            </div>
+            <div class="modal-body">
+                <p class="modal-desc">Simulate a factory telemetry event to verify real-time monitoring functions.</p>
+                <div class="modal-actions-list">
+                    <button class="btn btn-outline modal-action-item" data-action="sim-leak">
+                        <i data-lucide="droplet" class="text-danger"></i>
+                        <span>Trigger Press Leak Alert (Critical)</span>
+                    </button>
+                    <button class="btn btn-outline modal-action-item" data-action="sim-speed">
+                        <i data-lucide="gauge" class="text-purple"></i>
+                        <span>Optimize Assembly Speed (+5.0% OEE)</span>
+                    </button>
+                    <button class="btn btn-outline modal-action-item" data-action="sim-reset">
+                        <i data-lucide="refresh-cw" class="text-green"></i>
+                        <span>Clear All Active Alerts</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Glassmorphic Non-Blocking Toast Notification Container -->
+    <div id="toast-container" style="position:fixed; top:20px; right:20px; z-index:99999; display:flex; flex-direction:column; gap:10px; pointer-events:none;"></div>
+
+    <!-- ChartJS and Lucide Libraries (Loaded from local & fallback to CDN) -->
+    <script src="js/vendor/lucide.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>

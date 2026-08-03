@@ -1,0 +1,83 @@
+# ─── Node / npm ───────────────────────────────────────
+node_modules/
+node_temp/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+package-lock.json
+server/package-lock.json
+.npm/
+
+# ─── Non-Factory-OS server domains (legacy) ───────────
+server/domains/auth/
+server/domains/career/
+server/domains/community/
+server/domains/hackathon/
+server/domains/learning/
+server/domains/portfolio/
+server/domains/project/
+server/domains/student/
+server/domains/assessment/
+server/config/gemini.js
+server/config/supabase.js
+server/core/events.js
+server/.env.example
+
+# ─── Large vendor JS (served via CDN in production) ───
+client/js/vendor/ScrollTrigger.min.js
+client/js/vendor/gsap.min.js
+client/js/vendor/three.min.js
+client/js/three-bg.js
+client/js/api.js
+
+# ─── Environment / Secrets ────────────────────────────
+.env
+.env.*
+!.env.example
+
+# ─── OS junk ──────────────────────────────────────────
+.DS_Store
+Thumbs.db
+desktop.ini
+*.lnk
+
+# ─── Editor / IDE ─────────────────────────────────────
+.vscode/
+.idea/
+*.suo
+*.swp
+*.swo
+.vs/
+
+# ─── Temporary / Build ────────────────────────────────
+dist/
+build/
+.cache/
+*.tmp
+*.temp
+push_output.txt
+
+# ─── Helper scripts (not part of app) ─────────────────
+PUSH_TO_GITHUB.bat
+DEPLOY_TO_NETLIFY.bat
+
+# ─── Unrelated projects in repo root ──────────────────
+d3jsprogram/
+Smart City Dashboard/
+Smart City Monitoring Dashboard/
+smart_city_dashboard/
+Smart City Monitoring Dashboard.html
+
+# ─── Python ───────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+venv/
+.venv/
+
+# ─── Logs ─────────────────────────────────────────────
+*.log
+logs/
