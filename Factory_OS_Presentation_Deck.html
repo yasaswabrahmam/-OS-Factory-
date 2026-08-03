@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Factory OS — Executive Presentation Deck</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Inter', sans-serif; background: #0a0618; color: #f1f5f9; min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; }
+        .slide-container { width: 100%; max-width: 1000px; background: rgba(18, 9, 58, 0.85); border: 1px solid rgba(139, 92, 246, 0.3); border-radius: 20px; padding: 40px; box-shadow: 0 20px 60px rgba(0,0,0,0.6); backdrop-filter: blur(20px); display: none; min-height: 580px; flex-direction: column; justify-content: space-between; }
+        .slide-container.active { display: flex; animation: fadeIn 0.4s ease; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .slide-header { border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 15px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; }
+        .slide-title { font-family: 'Outfit', sans-serif; font-size: 26px; font-weight: 700; background: linear-gradient(135deg, #c084fc, #38bdf8); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .slide-badge { background: rgba(139, 92, 246, 0.15); border: 1px solid rgba(139, 92, 246, 0.3); color: #c084fc; font-size: 11px; font-weight: 700; padding: 4px 12px; border-radius: 20px; text-transform: uppercase; }
+        .slide-content { flex: 1; font-size: 15px; line-height: 1.6; color: #cbd5e1; display: flex; flex-direction: column; gap: 15px; }
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .card { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 18px; }
+        .card h4 { font-family: 'Outfit', sans-serif; color: #38bdf8; font-size: 16px; margin-bottom: 8px; }
+        .stat-value { font-family: 'Outfit', sans-serif; font-size: 28px; font-weight: 800; color: #4ade80; }
+        .nav-bar { margin-top: 25px; display: flex; justify-content: space-between; align-items: center; width: 100%; max-width: 1000px; }
+        .btn { background: linear-gradient(135deg, #8b5cf6, #06b6d4); border: none; color: white; padding: 10px 24px; border-radius: 8px; font-weight: 600; cursor: pointer; transition: all 0.2s; }
+        .btn:hover { transform: translateY(-2px); box-shadow: 0 4px 16px rgba(139, 92, 246, 0.4); }
+        .btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+        .dots { display: flex; gap: 8px; }
+        .dot { width: 10px; height: 10px; border-radius: 50%; background: rgba(255,255,255,0.2); cursor: pointer; }
+        .dot.active { background: #8b5cf6; box-shadow: 0 0 10px #8b5cf6; }
+    </style>
+</head>
+<body>
+
+    <!-- Slide 1 -->
+    <div class="slide-container active" id="slide-1">
+        <div class="slide-header">
+            <h2 class="slide-title">1. Industrial Application & Purpose</h2>
+            <span class="slide-badge">Factory OS Overview</span>
+        </div>
+        <div class="slide-content">
+            <p><strong>Factory OS</strong> is a next-generation <strong>Manufacturing Execution System (MES)</strong> and <strong>Industrial IoT (IIoT) Decision Intelligence Platform</strong> built for high-speed assembly environments.</p>
+            <div class="grid-2">
+                <div class="card">
+                    <h4>Core Purpose in Industry</h4>
+                    <p>Monitors manufacturing lines in real-time, predicts machine failure risks before breakdown occurs, and optimizes global OEE compliance above <strong>>95.0%</strong>.</p>
+                </div>
+                <div class="card">
+                    <h4>Target Industrial Sectors</h4>
+                    <p>Automotive Giga-Assembly Plants, Battery Cell Manufacturing, Heavy Machinery Press Lines, and Consumer Electronics Assembly.</p>
+                </div>
+            </div>
+            <div class="card">
+                <h4>Automated SAP ERP Integration</h4>
+                <p>Directly connects to SAP PM (Plant Maintenance) and SAP MM (Material Management) BAPI endpoints to trigger 1-click work orders and auto-replenish material inventory.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 2 -->
+    <div class="slide-container" id="slide-2">
+        <div class="slide-header">
+            <h2 class="slide-title">2. Telemetry Data Scale & Metrics</h2>
+            <span class="slide-badge">High-Speed Ingestion</span>
+        </div>
+        <div class="slide-content">
+            <p>Factory OS ingests high-frequency IoT sensor telemetry streams across 4 major global plant sites (Detroit, Austin, Berlin, Shanghai):</p>
+            <div class="grid-2">
+                <div class="card">
+                    <span class="stat-value">100 Hz</span>
+                    <p>High-Speed IoT Sensor Sampling Frequency (100 readings/sec/machine).</p>
+                </div>
+                <div class="card">
+                    <span class="stat-value">25M+</span>
+                    <p>Daily Sensor Log Ingestion Volume (Speed, Pressure, Temp, Vibration).</p>
+                </div>
+            </div>
+            <div class="grid-2">
+                <div class="card">
+                    <span class="stat-value">30 Days</span>
+                    <p>Rolling Historical Telemetry Vault per plant site.</p>
+                </div>
+                <div class="card">
+                    <span class="stat-value">1,000</span>
+                    <p>Trial Monte Carlo Parameter Iterations computed per risk simulation run.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 3 -->
+    <div class="slide-container" id="slide-3">
+        <div class="slide-header">
+            <h2 class="slide-title">3. Python 3.13 AI/ML Algorithms</h2>
+            <span class="slide-badge">Native ML Engine</span>
+        </div>
+        <div class="slide-content">
+            <div class="grid-2">
+                <div class="card">
+                    <h4>Multi-Variable Z-Score Engine</h4>
+                    <p>Evaluates deviation across Speed, Pressure, Temp, and ISO 10816 Vibration. Triggers alert if <strong>Z > 2.25</strong>.</p>
+                </div>
+                <div class="card">
+                    <h4>Logistic Sigmoid Risk Model</h4>
+                    <p>Calculates failure probability % <strong>P(Failure) = 100 / (1 + e^-logit)</strong> based on cumulative stress.</p>
+                </div>
+            </div>
+            <div class="grid-2">
+                <div class="card">
+                    <h4>RUL Polynomial Regressor</h4>
+                    <p>Estimates remaining operational hours (RUL) before mandatory preventative maintenance.</p>
+                </div>
+                <div class="card">
+                    <h4>ARIMA(1,1,0) Forecaster</h4>
+                    <p>Extends 24-hour historical OEE curves into a 6-shift predictive trajectory.</p>
+                </div>
+            </div>
+            <div class="card">
+                <h4>Cognex ViDi Vision AI & Monte Carlo Simulation</h4>
+                <p>Cognex deep learning model inspects micro-weld voids while 1,000 Gaussian Monte Carlo trials calculate P(OEE >= 95%) confidence limits.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 4 -->
+    <div class="slide-container" id="slide-4">
+        <div class="slide-header">
+            <h2 class="slide-title">4. Industrial Problems Solved</h2>
+            <span class="slide-badge">Business Impact</span>
+        </div>
+        <div class="slide-content">
+            <div class="card">
+                <h4>1. Zero Unplanned Mechanical Downtime</h4>
+                <p>Replaces costly reactive downtime ($22,000/min) with predictive RUL maintenance alerts 140 hours in advance.</p>
+            </div>
+            <div class="card">
+                <h4>2. Six Sigma Quality Control (<142.5 DPMO)</h4>
+                <p>Cognex Vision AI defect inspector maintains <strong>98.8% First Pass Yield (FPY)</strong> and eliminates defective part shipments.</p>
+            </div>
+            <div class="card">
+                <h4>3. Automated ERP Work Orders & Procurement</h4>
+                <p>Auto-generates SAP PM maintenance tickets and dispatches SAP MM purchase requisitions when stock drops below 25% safety threshold.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Navigation Controls -->
+    <div class="nav-bar">
+        <button class="btn" id="prev-btn" onclick="changeSlide(-1)" disabled>Previous</button>
+        <div class="dots">
+            <span class="dot active" onclick="goToSlide(1)"></span>
+            <span class="dot" onclick="goToSlide(2)"></span>
+            <span class="dot" onclick="goToSlide(3)"></span>
+            <span class="dot" onclick="goToSlide(4)"></span>
+        </div>
+        <button class="btn" id="next-btn" onclick="changeSlide(1)">Next</button>
+    </div>
+
+    <script>
+        let currentSlide = 1;
+        const totalSlides = 4;
+
+        function updateSlide() {
+            document.querySelectorAll('.slide-container').forEach((el, idx) => {
+                el.classList.toggle('active', idx + 1 === currentSlide);
+            });
+            document.querySelectorAll('.dot').forEach((el, idx) => {
+                el.classList.toggle('active', idx + 1 === currentSlide);
+            });
+            document.getElementById('prev-btn').disabled = currentSlide === 1;
+            document.getElementById('next-btn').disabled = currentSlide === totalSlides;
+        }
+
+        function changeSlide(direction) {
+            currentSlide = Math.max(1, Math.min(totalSlides, currentSlide + direction));
+            updateSlide();
+        }
+
+        function goToSlide(slideNum) {
+            currentSlide = slideNum;
+            updateSlide();
+        }
+    </script>
+</body>
+</html>
