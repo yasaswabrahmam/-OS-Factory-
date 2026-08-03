@@ -1,6 +1,14 @@
-# GitHub Linguist Overrides - Force GitHub to classify repository as Python
-client/* linguist-vendored=true
-client/** linguist-vendored=true
-*.html linguist-documentation=true
-*.css linguist-documentation=true
-*.js linguist-vendored=true
+# GitHub Linguist Language Overrides - Exclude HTML/CSS/JS from statistics
+*.html linguist-detectable=false
+*.css linguist-detectable=false
+*.js linguist-detectable=false
+client/** linguist-detectable=false
+client/* linguist-detectable=false
+
+# Set Python as primary detectable language
+*.py linguist-detectable=true
+server.py linguist-detectable=true
+python_ml_engine.py linguist-detectable=true
+factory_os_analytics.py linguist-detectable=true
+telemetry_simulator.py linguist-detectable=true
+generate_review_pdf.py linguist-detectable=true
