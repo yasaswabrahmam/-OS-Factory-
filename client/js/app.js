@@ -2067,22 +2067,101 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // ── Sidebar Search — filter nav links in real-time, Enter to navigate ──
+    // ── Instant Visual Search Popover Engine ──
+    function createSearchPopover(inputEl) {
+        const parent = inputEl.parentElement;
+        if (!parent) return null;
+        let popover = parent.querySelector('.search-popover-dropdown');
+        if (!popover) {
+            popover = document.createElement('div');
+            popover.className = 'search-popover-dropdown';
+            popover.style.cssText = [
+                'display:none', 'position:absolute', 'top:100%', 'left:0', 'right:0',
+                'margin-top:6px', 'z-index:9990', 'background:rgba(15,10,40,0.96)',
+                'border:1px solid rgba(139,92,246,0.4)', 'border-radius:12px',
+                'padding:8px', 'box-shadow:0 20px 40px rgba(0,0,0,0.8)',
+                'backdrop-filter:blur(16px)', 'max-height:300px', 'overflow-y:auto',
+                'font-family:var(--font-main)'
+            ].join(';');
+            parent.style.position = 'relative';
+            parent.appendChild(popover);
+        }
+        return popover;
+    }
+
+    function updateSearchPopover(inputEl, query) {
+        const popover = createSearchPopover(inputEl);
+        if (!popover) return;
+        const q = query.toLowerCase().trim();
+
+        if (!q) {
+            popover.style.display = 'none';
+            return;
+        }
+
+        const matches = NAV_MAP.filter(item =>
+            item.keys.some(k => k === q || k.startsWith(q) || q.startsWith(k) || k.includes(q) || q.includes(k))
+        );
+
+        popover.innerHTML = '';
+        if (matches.length === 0) {
+            popover.innerHTML = `
+                <div style="padding:10px; font-size:12px; color:#94a3b8; text-align:center;">
+                    🤖 No menu match. Press <kbd style="background:rgba(255,255,255,0.1);padding:2px 6px;border-radius:4px;">Enter</kbd> to ask <strong>AI Copilot</strong>
+                </div>`;
+            popover.style.display = 'block';
+            return;
+        }
+
+        matches.forEach(item => {
+            const row = document.createElement('div');
+            row.style.cssText = [
+                'display:flex', 'align-items:center', 'justify-content:space-between',
+                'padding:8px 12px', 'border-radius:8px', 'cursor:pointer',
+                'transition:background 0.15s', 'margin-bottom:2px'
+            ].join(';');
+            row.innerHTML = `
+                <span style="font-size:13px; font-weight:600; color:#f1f5f9;">${item.name}</span>
+                <span style="font-size:10px; font-weight:700; color:#c084fc; background:rgba(139,92,246,0.15); padding:2px 8px; border-radius:4px;">OPEN →</span>
+            `;
+            row.onmouseenter = () => row.style.background = 'rgba(139,92,246,0.2)';
+            row.onmouseleave = () => row.style.background = 'transparent';
+            row.onclick = (e) => {
+                e.stopPropagation();
+                if (item.fn) item.fn();
+                else {
+                    window.location.hash = item.hash;
+                    handleRoute();
+                }
+                popover.style.display = 'none';
+                inputEl.value = '';
+                window.showToast(`📍 Navigated to: ${item.name}`, 'info');
+            };
+            popover.appendChild(row);
+        });
+        popover.style.display = 'block';
+    }
+
+    // Hide popovers when clicking outside
+    document.addEventListener('click', (e) => {
+        document.querySelectorAll('.search-popover-dropdown').forEach(p => p.style.display = 'none');
+    });
+
+    // ── Sidebar Search — filter nav links in real-time & show popover ──
     const sidebarSearchEl = document.getElementById('sidebar-search-input');
     if (sidebarSearchEl) {
         sidebarSearchEl.addEventListener('input', () => {
             const q = sidebarSearchEl.value.toLowerCase().trim();
-            // nav items are <a class="nav-item"> directly inside <div class="nav-section">
             document.querySelectorAll('.sidebar-nav .nav-item').forEach(link => {
                 const text = link.textContent.toLowerCase();
                 link.style.display = (!q || text.includes(q)) ? '' : 'none';
             });
-            // Show/hide section title if all children hidden
             document.querySelectorAll('.sidebar-nav .nav-section').forEach(section => {
                 const hasVisible = [...section.querySelectorAll('.nav-item')].some(a => a.style.display !== 'none');
                 const title = section.querySelector('.nav-section-title');
                 if (title) title.style.display = hasVisible ? '' : 'none';
             });
+            updateSearchPopover(sidebarSearchEl, q);
         });
 
         sidebarSearchEl.addEventListener('keydown', (e) => {
@@ -2091,13 +2170,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (val) {
                     executeSearch(val);
                     sidebarSearchEl.value = '';
-                    // Restore all nav items
+                    updateSearchPopover(sidebarSearchEl, '');
                     document.querySelectorAll('.sidebar-nav .nav-item').forEach(a => a.style.display = '');
                     document.querySelectorAll('.sidebar-nav .nav-section-title').forEach(t => t.style.display = '');
                 }
             }
             if (e.key === 'Escape') {
                 sidebarSearchEl.value = '';
+                updateSearchPopover(sidebarSearchEl, '');
                 document.querySelectorAll('.sidebar-nav .nav-item').forEach(a => a.style.display = '');
                 document.querySelectorAll('.sidebar-nav .nav-section-title').forEach(t => t.style.display = '');
             }
@@ -2108,24 +2188,27 @@ document.addEventListener('DOMContentLoaded', () => {
     const globalSearchEl = document.getElementById('global-search');
     if (globalSearchEl) {
         globalSearchEl.addEventListener('input', () => {
-            // Subtle highlight matching nav items
             const q = globalSearchEl.value.toLowerCase().trim();
             document.querySelectorAll('.sidebar-nav .nav-item').forEach(link => {
                 const text = link.textContent.toLowerCase();
                 link.style.opacity = (!q || text.includes(q)) ? '1' : '0.3';
             });
+            updateSearchPopover(globalSearchEl, q);
         });
+
         globalSearchEl.addEventListener('keydown', (e) => {
             if (e.key === 'Enter') {
                 const val = globalSearchEl.value.trim();
                 if (val) {
                     executeSearch(val);
                     globalSearchEl.value = '';
+                    updateSearchPopover(globalSearchEl, '');
                     document.querySelectorAll('.sidebar-nav .nav-item').forEach(a => a.style.opacity = '1');
                 }
             }
             if (e.key === 'Escape') {
                 globalSearchEl.value = '';
+                updateSearchPopover(globalSearchEl, '');
                 document.querySelectorAll('.sidebar-nav .nav-item').forEach(a => a.style.opacity = '1');
             }
         });
