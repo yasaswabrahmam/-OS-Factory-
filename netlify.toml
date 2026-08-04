@@ -1,5 +1,6 @@
 [build]
   publish = "client"
+  command = "echo 'Factory OS static build complete'"
 
 [[redirects]]
   from = "/*"

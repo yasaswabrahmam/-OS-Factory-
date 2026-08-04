@@ -909,49 +909,71 @@ document.addEventListener('DOMContentLoaded', () => {
     });
     elements.btnCloseCopilot.addEventListener('click', toggleAI);
 
+    function getLocalAICopilotReply(text, sp, pr) {
+        const q = text.toLowerCase();
+        const userName = (accounts && accounts[activeAccountIndex]) ? accounts[activeAccountIndex].name.split(' ')[0] : 'Operator';
+        const oee = state.telemetry ? state.telemetry.oee.toFixed(1) : '92.4';
+        const z = (Math.abs(sp - 12) / 2 + Math.abs(pr - 210) / 15).toFixed(2);
+        const risk = (100 / (1 + Math.exp(-(0.35*(sp-14) + 0.045*(pr-215) - 1.6)))).toFixed(1);
+
+        if (q.includes('hi') || q.includes('hello') || q.includes('hey')) {
+            return `Hello <strong>${userName}</strong>! Operational status for <strong>${state.activeSite.toUpperCase()}</strong> is nominal. Current OEE: <strong>${oee}%</strong>. How can I assist with your shift today?`;
+        }
+        if (q.includes('press') || q.includes('hydraulic') || q.includes('spm')) {
+            return `<strong>Schuler Press B-2 Diagnostic:</strong><br>• Speed: <strong>${sp} SPM</strong> | Pressure: <strong>${pr} Bar</strong><br>• Z-Score Anomaly: <strong>${z} Z</strong><br>• Sigmoid Failure Risk: <strong>${risk}%</strong><br><em>Recommendation:</em> Maintain pressure ≤230 Bar to optimize seals.`;
+        }
+        if (q.includes('oee') || q.includes('forecast') || q.includes('kpi')) {
+            return `<strong>OEE Performance Analysis:</strong><br>• Current OEE: <strong>${oee}%</strong> (Benchmark: >95%)<br>• Availability: <strong>${state.telemetry.availability.toFixed(1)}%</strong><br>• Performance: <strong>${state.telemetry.performance.toFixed(1)}%</strong><br>• Yield: <strong>${state.telemetry.yield.toFixed(1)}%</strong><br>ARIMA 6-shift forecast models stable production trajectory.`;
+        }
+        if (q.includes('quality') || q.includes('defect') || q.includes('cognex')) {
+            return `<strong>Cognex Vision AI Inspection Report:</strong><br>• First Pass Yield (FPY): <strong>98.8%</strong><br>• Defect Rate: <strong>1.2%</strong> (Micro-porosity in weld seams)<br>• Active Auto-reject: Line 3 Station B. Zero critical escapes reported in past 24h.`;
+        }
+        if (q.includes('maint') || q.includes('repair') || q.includes('work order')) {
+            return `<strong>Maintenance Work Order Dispatch:</strong><br>• WO-9041: Hydraulic valve seal replacement — Scheduled (Risk: High)<br>• WO-9042: Robot Arm Joint B calibration — In Progress<br>• WO-9043: Conveyor belt tension check — Completed`;
+        }
+        if (q.includes('inv') || q.includes('stock') || q.includes('carbon') || q.includes('battery')) {
+            return `<strong>Raw Material Inventory Status:</strong><br>• 2170 Lithium-Ion Cells: 48,200 units (96% safety margin)<br>• Pre-preg Carbon Fiber: 340 rolls (Reorder triggered)<br>• 6061-T6 Aluminum: 1,420 sheets (Sufficient for 14 shifts)`;
+        }
+        if (q.includes('alert') || q.includes('alarm') || q.includes('critical') || q.includes('error')) {
+            return `<strong>Active System Alerts:</strong><br>🚨 [CRITICAL] Hydraulic pressure decay on Schuler Press (210 Bar).<br>⚠️ [WARNING] Exhaust Fan B vibration index reached 1.8 Z.<br>ℹ️ [INFO] Welding Robot calibration verified (0.02mm offset).`;
+        }
+        return `<strong>AI Decision Engine Analysis:</strong><br>Evaluated parameters (Speed: ${sp} SPM, Pressure: ${pr} Bar). Z-Score Anomaly = <strong>${z} Z</strong>, Failure Risk = <strong>${risk}%</strong>. System operating within telemetry parameters. Recommend scheduled inspection at next shift handover.`;
+    }
+
     // AI Messaging logic
     async function sendMessageToCopilot() {
         const text = elements.chatInput.value.trim();
         if (!text) return;
 
-        // Clear input
         elements.chatInput.value = '';
-
-        // Append User msg bubble
         appendChatBubble('user', text);
 
-        // Fetch AI Response
+        const speedVal = elements.speedSlider ? parseFloat(elements.speedSlider.value) : 12;
+        const pressVal = elements.pressureSlider ? parseFloat(elements.pressureSlider.value) : 210;
+
+        let placeholder;
         try {
-            // Display typing indicator placeholder
-            const placeholder = appendChatBubble('system', 'Consulting decision models...');
-            const speedVal = elements.speedSlider ? parseFloat(elements.speedSlider.value) : 12;
-            const pressVal = elements.pressureSlider ? parseFloat(elements.pressureSlider.value) : 210;
+            placeholder = appendChatBubble('system', 'Consulting decision models...');
             const response = await fetch('/api/ai/tutor/chat', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ 
-                    message: text,
-                    speed: speedVal,
-                    pressure: pressVal
-                })
+                body: JSON.stringify({ message: text, speed: speedVal, pressure: pressVal })
             });
 
+            if (!response.ok) throw new Error('API offline');
             const data = await response.json();
-            placeholder.remove(); // Remove placeholder
+            if (placeholder) placeholder.remove();
 
-            // Format markdown styling slightly
             const replyObj = data.data || data;
-            let reply = replyObj.content || replyObj.reply || "Unable to retrieve recommendation log.";
+            let reply = replyObj.content || replyObj.reply || getLocalAICopilotReply(text, speedVal, pressVal);
             reply = reply.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
             reply = reply.replace(/\*(.*?)\n/g, '<li>$1</li>');
-            
+
             appendChatBubble('system', reply);
         } catch (e) {
-            console.error(e);
-            // Fallback response if offline
-            setTimeout(() => {
-                appendChatBubble('system', "I'm experiencing an offline gateway error, but monitoring logs indicate **Schuler Press Cylinder B-2** is reporting mechanical pressure decay. I recommend checking the hydraulic valves and dispatching a maintenance ticket.");
-            }, 1000);
+            if (placeholder) placeholder.remove();
+            const fallbackReply = getLocalAICopilotReply(text, speedVal, pressVal);
+            appendChatBubble('system', fallbackReply);
         }
     }
 
