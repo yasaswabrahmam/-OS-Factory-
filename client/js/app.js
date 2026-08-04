@@ -1,8 +1,49 @@
 /**
  * Factory OS — Core Dashboard Controller
  * Handles routing, real-time telemetry simulation, Chart.js rendering,
- * AI Copilot chat drawer, alerts, and theme switching.
+ * AI Copilot chat drawer, alerts, theme switching, profile menu, and authentication.
  */
+
+// ── Global Helper: Non-Blocking Glassmorphic Toast Notifications (available immediately) ──
+window.showToast = function(msg, type = 'info') {
+    const container = document.getElementById('toast-container');
+    if (!container) return;
+
+    const iconMap = {
+        success: 'check-circle',
+        info: 'info',
+        warning: 'alert-triangle',
+        danger: 'alert-octagon'
+    };
+    const colorMap = {
+        success: 'var(--success)',
+        info: 'var(--accent-secondary)',
+        warning: 'var(--warning)',
+        danger: 'var(--danger)'
+    };
+
+    const toast = document.createElement('div');
+    toast.className = `toast-notification ${type}`;
+    toast.innerHTML = `
+        <i data-lucide="${iconMap[type] || 'info'}" style="width:16px; height:16px; color:${colorMap[type] || 'var(--accent-secondary)'}; margin-top:2px; flex-shrink:0; display:inline-block;"></i>
+        <div style="flex:1;">
+            <span style="font-weight:bold; display:block; margin-bottom:2px; color:${colorMap[type] || 'var(--accent-secondary)'}; text-transform:uppercase; font-size:10px;">${type}</span>
+            <span style="line-height:1.4;">${String(msg).replace(/\n/g, '<br>')}</span>
+        </div>
+    `;
+
+    container.appendChild(toast);
+    if (window.lucide && window.lucide.createIcons) {
+        window.lucide.createIcons();
+    }
+
+    setTimeout(() => {
+        toast.style.opacity = '0';
+        toast.style.transform = 'translateX(40px)';
+        toast.style.transition = 'all 0.3s ease';
+        setTimeout(() => toast.remove(), 300);
+    }, 4000);
+};
 
 document.addEventListener('DOMContentLoaded', () => {
     // ── Application State ──
@@ -2318,6 +2359,23 @@ document.addEventListener('DOMContentLoaded', () => {
             window.closeProfileMenu();
         }
     });
+
+    // Explicit Profile Click Listener bindings (ensures click always opens menu)
+    const sidebarProfileWidget = document.getElementById('user-profile-widget');
+    if (sidebarProfileWidget) {
+        sidebarProfileWidget.addEventListener('click', (e) => {
+            e.stopPropagation();
+            window.openProfileMenu();
+        });
+    }
+
+    const headerProfileWidget = document.querySelector('.profile-widget');
+    if (headerProfileWidget) {
+        headerProfileWidget.addEventListener('click', (e) => {
+            e.stopPropagation();
+            window.openProfileMenu();
+        });
+    }
 
     // ── Initialization ──
     initTheme();
