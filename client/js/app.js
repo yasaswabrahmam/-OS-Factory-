@@ -1866,6 +1866,7 @@ document.addEventListener('DOMContentLoaded', () => {
         { name: 'Alexander Vance', role: 'Plant Manager', color: '0D8ABC' },
         { name: 'Yasaswa Brahmam', role: 'Plant Director / Dev', color: '7C3AED' },
         { name: 'Aravind Ariv', role: 'System Engineer', color: '059669' },
+        { name: 'Jithesh-26', role: 'OS Factory Member', color: 'F59E0B' },
         { name: 'Guest Operator', role: 'View Only Access', color: '64748B' }
     ];
 
