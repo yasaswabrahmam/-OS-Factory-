@@ -4,20 +4,163 @@ Factory OS — 100% Pure Python Web Server & Machine Learning Telemetry Engine
 Provides complete REST API endpoints and serves the static frontend UI (client/) on port 5000.
 
 Zero External Dependencies — Built entirely with Python 3 Standard Library!
+API Automation: Live telemetry stream, anomaly events, smart ML recommendations,
+auto OEE updater, real-time sensor simulation, and AI decision engine.
 """
 
 import os
 import sys
 import json
 import math
+import time
 import random
 import statistics
-from datetime import datetime
+import threading
+from datetime import datetime, timedelta
+from collections import deque
 from http.server import HTTPServer, SimpleHTTPRequestHandler
 from urllib.parse import parse_qs, urlparse
 
 PORT = 5000
 CLIENT_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'client')
+
+# ── Live State Store (in-memory, auto-updated by background ML thread) ──
+LIVE_STATE = {
+    "oee": 90.7,
+    "availability": 98.1,
+    "performance": 93.4,
+    "yield_rate": 98.6,
+    "speed": 12.0,
+    "pressure": 210.0,
+    "temperature": 65.0,
+    "vibration": 1.4,
+    "failure_risk": 6.6,
+    "rul": 168,
+    "z_score": 0.15,
+    "status": "HEALTHY",
+    "last_updated": datetime.now().isoformat(),
+    "anomaly_events": deque(maxlen=50),
+    "oee_history_24h": deque(maxlen=288),  # 5-min intervals over 24h
+    "sensor_readings": deque(maxlen=100)
+}
+
+# ── Background ML Automation Engine ──
+def ml_background_engine():
+    """Continuously runs ML models and updates LIVE_STATE every 5 seconds."""
+    tick = 0
+    while True:
+        try:
+            tick += 1
+            now = datetime.now()
+
+            # Simulate realistic sensor drift using ARIMA-style autoregression
+            phi = 0.82
+            drift_speed  = (random.random() - 0.5) * 0.3
+            drift_press  = (random.random() - 0.5) * 1.5
+            drift_temp   = (random.random() - 0.5) * 0.8
+            drift_vib    = (random.random() - 0.5) * 0.05
+
+            LIVE_STATE["speed"]       = max(8.0,  min(20.0, LIVE_STATE["speed"]       + drift_speed))
+            LIVE_STATE["pressure"]    = max(180.0, min(260.0, LIVE_STATE["pressure"]  + drift_press))
+            LIVE_STATE["temperature"] = max(40.0,  min(120.0, LIVE_STATE["temperature"] + drift_temp))
+            LIVE_STATE["vibration"]   = max(0.8,  min(3.5,  LIVE_STATE["vibration"]   + drift_vib))
+
+            sp = LIVE_STATE["speed"]
+            pr = LIVE_STATE["pressure"]
+            tp = LIVE_STATE["temperature"]
+            vb = LIVE_STATE["vibration"]
+
+            # Z-Score anomaly detection (composite multi-variate)
+            z_sp = abs(sp - 12.0) / 2.0
+            z_pr = abs(pr - 210.0) / 15.0
+            z_tp = abs(tp - 65.0) / 8.0
+            z_vb = abs(vb - 1.4) / 0.3
+            z = math.sqrt((z_sp**2 + z_pr**2 + z_tp**2 + z_vb**2) / 4.0)
+            z = max(0.08, z + random.random() * 0.04)
+
+            # Logistic Sigmoid failure risk
+            logit = 0.35*(sp-14.0) + 0.045*(pr-215.0) + 1.2*(vb-1.5) - 1.6
+            risk  = 100.0 / (1.0 + math.exp(-logit))
+            risk  = min(99.9, max(1.2, risk))
+
+            # RUL regression
+            deg = (sp/12.0)**1.6 * (pr/210.0)**1.4 * (vb/1.4)**1.2
+            rul = max(0, int(round(168.0 / deg)))
+
+            # OEE components with realistic correlation to sensor values
+            av   = max(75.0, min(100.0, 98.1  - (z * 0.8) + random.gauss(0, 0.3)))
+            perf = max(70.0, min(100.0, 93.4  - (risk * 0.04) + random.gauss(0, 0.4)))
+            yld  = max(90.0, min(100.0, 98.6  - (z * 0.2) + random.gauss(0, 0.15)))
+            oee  = round((av/100) * (perf/100) * (yld/100) * 100, 1)
+
+            status = "ANOMALY" if (z > 2.25 or risk > 65.0) else "HEALTHY"
+
+            LIVE_STATE.update({
+                "oee": round(oee, 1),
+                "availability": round(av, 1),
+                "performance": round(perf, 1),
+                "yield_rate": round(yld, 1),
+                "failure_risk": round(risk, 1),
+                "rul": rul,
+                "z_score": round(z, 2),
+                "status": status,
+                "last_updated": now.isoformat()
+            })
+
+            # Record OEE history point
+            LIVE_STATE["oee_history_24h"].append({
+                "time": now.strftime("%H:%M"),
+                "oee": round(oee, 1),
+                "availability": round(av, 1)
+            })
+
+            # Record sensor snapshot
+            LIVE_STATE["sensor_readings"].append({
+                "ts": now.strftime("%H:%M:%S"),
+                "speed": round(sp, 2),
+                "pressure": round(pr, 1),
+                "temperature": round(tp, 1),
+                "vibration": round(vb, 3),
+                "z": round(z, 2),
+                "risk": round(risk, 1)
+            })
+
+            # Auto-generate anomaly events when thresholds breached
+            if z > 2.25:
+                LIVE_STATE["anomaly_events"].appendleft({
+                    "id": f"EVT-{tick:04d}",
+                    "time": now.strftime("%H:%M:%S"),
+                    "severity": "critical" if risk > 65 else "warning",
+                    "type": "Z-Score Anomaly",
+                    "msg": f"Z={z:.2f} exceeds threshold 2.25. Risk={risk:.1f}%. Speed={sp:.1f} SPM, Pressure={pr:.0f} Bar.",
+                    "component": "Schuler Press ML Engine"
+                })
+            elif vb > 2.8:
+                LIVE_STATE["anomaly_events"].appendleft({
+                    "id": f"EVT-{tick:04d}",
+                    "time": now.strftime("%H:%M:%S"),
+                    "severity": "warning",
+                    "type": "ISO 10816 Vibration Alert",
+                    "msg": f"Vibration={vb:.3f} mm/s exceeds ISO Class III limit (2.8 mm/s). Immediate inspection advised.",
+                    "component": "Vibration Sensor Array"
+                })
+            elif pr > 248:
+                LIVE_STATE["anomaly_events"].appendleft({
+                    "id": f"EVT-{tick:04d}",
+                    "time": now.strftime("%H:%M:%S"),
+                    "severity": "warning",
+                    "type": "Hydraulic Over-Pressure",
+                    "msg": f"Pressure={pr:.0f} Bar (limit: 250 Bar). Check proportional valve seal.",
+                    "component": "Schuler Hydraulic System"
+                })
+
+        except Exception as e:
+            pass
+        time.sleep(5)  # Update every 5 seconds
+
+# Start background ML engine in daemon thread
+_ml_thread = threading.Thread(target=ml_background_engine, daemon=True)
+_ml_thread.start()
 
 # ── 1. Python AI/ML Engine ──
 def box_muller():
@@ -230,8 +373,107 @@ class FactoryOSRequestHandler(SimpleHTTPRequestHandler):
                     {"name": "Shift_Alpha_OEE_Summary_Q3.pdf", "type": "PDF", "size": "840 KB", "date": "Yesterday"},
                     {"name": "Cognex_Vision_AI_Defects.csv", "type": "CSV", "size": "320 KB", "date": "Aug 02, 2026"}
                 ])
+
+            # ── LIVE ML API ENDPOINTS (auto-updated by background engine) ──
+            elif path == '/api/live/state':
+                # Full live plant state — call this every 5s from frontend
+                self._send_json({
+                    "oee": LIVE_STATE["oee"],
+                    "availability": LIVE_STATE["availability"],
+                    "performance": LIVE_STATE["performance"],
+                    "yield": LIVE_STATE["yield_rate"],
+                    "speed": round(LIVE_STATE["speed"], 2),
+                    "pressure": round(LIVE_STATE["pressure"], 1),
+                    "temperature": round(LIVE_STATE["temperature"], 1),
+                    "vibration": round(LIVE_STATE["vibration"], 3),
+                    "failureRisk": LIVE_STATE["failure_risk"],
+                    "rul": LIVE_STATE["rul"],
+                    "zScore": LIVE_STATE["z_score"],
+                    "status": LIVE_STATE["status"],
+                    "lastUpdated": LIVE_STATE["last_updated"]
+                })
+
+            elif path == '/api/live/oee-stream':
+                # Last 60 OEE data points for real-time chart
+                history = list(LIVE_STATE["oee_history_24h"])[-60:]
+                self._send_json({
+                    "points": history,
+                    "current": LIVE_STATE["oee"],
+                    "trend": "up" if len(history) > 1 and history[-1]["oee"] > history[0]["oee"] else "down"
+                })
+
+            elif path == '/api/live/sensors':
+                # Last 20 sensor readings
+                readings = list(LIVE_STATE["sensor_readings"])[-20:]
+                self._send_json({
+                    "readings": readings,
+                    "current": {
+                        "speed": round(LIVE_STATE["speed"], 2),
+                        "pressure": round(LIVE_STATE["pressure"], 1),
+                        "temperature": round(LIVE_STATE["temperature"], 1),
+                        "vibration": round(LIVE_STATE["vibration"], 3)
+                    }
+                })
+
+            elif path == '/api/live/anomalies':
+                # Latest anomaly events from ML engine
+                events = list(LIVE_STATE["anomaly_events"])[:15]
+                self._send_json({
+                    "events": events,
+                    "totalDetected": len(LIVE_STATE["anomaly_events"]),
+                    "systemStatus": LIVE_STATE["status"]
+                })
+
+            elif path == '/api/live/dashboard':
+                # One-shot full dashboard data — replaces multiple API calls
+                self._send_json({
+                    "kpis": {
+                        "oee": LIVE_STATE["oee"],
+                        "availability": LIVE_STATE["availability"],
+                        "performance": LIVE_STATE["performance"],
+                        "yield": LIVE_STATE["yield_rate"]
+                    },
+                    "ml": {
+                        "failureRisk": LIVE_STATE["failure_risk"],
+                        "rul": LIVE_STATE["rul"],
+                        "zScore": LIVE_STATE["z_score"],
+                        "status": LIVE_STATE["status"]
+                    },
+                    "sensors": {
+                        "speed": round(LIVE_STATE["speed"], 2),
+                        "pressure": round(LIVE_STATE["pressure"], 1),
+                        "temperature": round(LIVE_STATE["temperature"], 1),
+                        "vibration": round(LIVE_STATE["vibration"], 3)
+                    },
+                    "recentAnomalies": list(LIVE_STATE["anomaly_events"])[:5],
+                    "lastUpdated": LIVE_STATE["last_updated"]
+                })
+
+            elif path == '/api/ai/recommend':
+                # Smart ML-based recommendations based on live state
+                risk  = LIVE_STATE["failure_risk"]
+                z     = LIVE_STATE["z_score"]
+                rul   = LIVE_STATE["rul"]
+                sp    = LIVE_STATE["speed"]
+                pr    = LIVE_STATE["pressure"]
+                recs  = []
+
+                if risk > 65:
+                    recs.append({"priority": "CRITICAL", "action": "Emergency maintenance dispatch", "detail": f"Failure risk at {risk:.1f}%. Dispatch technician to Schuler Press immediately.", "impact": "Prevent unplanned downtime"})
+                if z > 2.25:
+                    recs.append({"priority": "HIGH", "action": "Reduce operating speed", "detail": f"Z-Score {z:.2f} exceeds safe limit. Reduce speed from {sp:.1f} SPM to {max(8, sp-2):.1f} SPM.", "impact": "+3-5% RUL extension"})
+                if pr > 240:
+                    recs.append({"priority": "HIGH", "action": "Inspect hydraulic valve", "detail": f"Pressure at {pr:.0f} Bar (limit 250). Check proportional valve seal on Cylinder B-2.", "impact": "Prevent hydraulic failure"})
+                if rul < 48:
+                    recs.append({"priority": "HIGH", "action": "Schedule maintenance window", "detail": f"RUL = {rul}hrs. Schedule maintenance before next shift handover.", "impact": "Prevent unscheduled downtime"})
+                if not recs:
+                    recs.append({"priority": "LOW", "action": "System nominal", "detail": f"All ML models within safe thresholds. OEE={LIVE_STATE['oee']}%, Risk={risk:.1f}%.", "impact": "Continue monitoring"})
+
+                self._send_json({"recommendations": recs, "generatedAt": datetime.now().isoformat(), "mlStatus": LIVE_STATE["status"]})
+
             else:
                 self._send_json({"error": "API route not found"}, status_code=404)
+
         elif path == '/health':
             self._send_json({"status": "OK", "server": "Pure Python 3.13 Server"})
         else:

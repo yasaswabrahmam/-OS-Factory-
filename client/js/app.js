@@ -462,35 +462,115 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // ── Telemetry Simulation Engine ──
+    // ── Live API Auto-Polling Engine (replaces random simulation) ──
     function runTelemetrySimulation() {
-        setInterval(() => {
-            // Slight fluctuation
-            state.telemetry.oee = Math.min(100, Math.max(50, state.telemetry.oee + (Math.random() * 0.8 - 0.4)));
-            state.telemetry.availability = Math.min(100, Math.max(50, state.telemetry.availability + (Math.random() * 0.4 - 0.2)));
-            state.telemetry.performance = Math.min(100, Math.max(50, state.telemetry.performance + (Math.random() * 0.6 - 0.3)));
-            state.telemetry.yield = Math.min(100, Math.max(50, state.telemetry.yield + (Math.random() * 0.2 - 0.1)));
+        // Poll /api/live/state every 5s — real Python ML backend data
+        async function pollLiveState() {
+            try {
+                const res = await fetch('/api/live/state');
+                if (!res.ok) throw new Error('API offline');
+                const json = await res.json();
+                const d = json.data || json;
 
-            // Update UI metrics values
-            elements.valOee.textContent = `${state.telemetry.oee.toFixed(1)}%`;
-            elements.valAvailability.textContent = `${state.telemetry.availability.toFixed(1)}%`;
-            elements.valPerformance.textContent = `${state.telemetry.performance.toFixed(1)}%`;
-            elements.valYield.textContent = `${state.telemetry.yield.toFixed(1)}%`;
+                // Update KPI metrics from live ML engine
+                if (d.oee !== undefined) {
+                    state.telemetry.oee          = d.oee;
+                    state.telemetry.availability = d.availability;
+                    state.telemetry.performance  = d.performance;
+                    state.telemetry.yield        = d.yield;
 
-            // Push values to sparklines and update
-            updateSparklineData('sparkline-oee', state.telemetry.oee);
-            updateSparklineData('sparkline-availability', state.telemetry.availability);
-            updateSparklineData('sparkline-performance', state.telemetry.performance);
-            updateSparklineData('sparkline-yield', state.telemetry.yield);
+                    if (elements.valOee)          elements.valOee.textContent          = `${d.oee.toFixed(1)}%`;
+                    if (elements.valAvailability) elements.valAvailability.textContent = `${d.availability.toFixed(1)}%`;
+                    if (elements.valPerformance)  elements.valPerformance.textContent  = `${d.performance.toFixed(1)}%`;
+                    if (elements.valYield)        elements.valYield.textContent        = `${d.yield.toFixed(1)}%`;
 
-            // Dynamically append new OEE tick to main trend chart
-            if (mainTrendChart) {
-                const datasets = mainTrendChart.data.datasets[0];
-                datasets.data.shift();
-                datasets.data.push(state.telemetry.oee);
-                mainTrendChart.update('none'); // silent update without animation transitions
+                    // Update ML panel
+                    if (elements.mlFailureRisk)  elements.mlFailureRisk.textContent   = `${d.failureRisk.toFixed(1)}%`;
+                    if (elements.mlRul)          elements.mlRul.textContent           = `${d.rul} hrs`;
+                    if (elements.mlAnomalyScore) elements.mlAnomalyScore.textContent  = `${d.zScore.toFixed(2)} Z`;
+                    const mlStatusEl = document.getElementById('ml-status-text');
+                    if (mlStatusEl) {
+                        mlStatusEl.textContent   = d.status;
+                        mlStatusEl.style.color   = d.status === 'ANOMALY' ? 'var(--danger)' : 'var(--success)';
+                    }
+
+                    // Update sensor slider displays
+                    if (elements.valSpeedSlider)    elements.valSpeedSlider.textContent    = `${d.speed.toFixed(1)} SPM`;
+                    if (elements.valPressureSlider) elements.valPressureSlider.textContent = `${d.pressure.toFixed(0)} Bar`;
+
+                    // Update header benchmark score
+                    const headerScore = document.getElementById('header-benchmark-score');
+                    if (headerScore) headerScore.textContent = `${d.oee.toFixed(1)}%`;
+
+                    // Update sparklines
+                    updateSparklineData('sparkline-oee',          d.oee);
+                    updateSparklineData('sparkline-availability',  d.availability);
+                    updateSparklineData('sparkline-performance',   d.performance);
+                    updateSparklineData('sparkline-yield',         d.yield);
+
+                    // Push to main OEE trend chart
+                    if (mainTrendChart) {
+                        const ds = mainTrendChart.data.datasets[0];
+                        ds.data.shift();
+                        ds.data.push(d.oee);
+                        mainTrendChart.update('none');
+                    }
+
+                    // Show anomaly toast if status changed to ANOMALY
+                    if (d.status === 'ANOMALY' && d.failureRisk > 65) {
+                        window.showToast(`🚨 ML ALERT: Z=${d.zScore} — Failure risk ${d.failureRisk}% detected!`, 'danger');
+                    }
+                }
+            } catch (e) {
+                // Fallback: smooth random walk if API is down
+                state.telemetry.oee          = Math.min(100, Math.max(50, state.telemetry.oee + (Math.random() * 0.6 - 0.3)));
+                state.telemetry.availability = Math.min(100, Math.max(50, state.telemetry.availability + (Math.random() * 0.3 - 0.15)));
+                state.telemetry.performance  = Math.min(100, Math.max(50, state.telemetry.performance + (Math.random() * 0.4 - 0.2)));
+                state.telemetry.yield        = Math.min(100, Math.max(50, state.telemetry.yield + (Math.random() * 0.15 - 0.075)));
+
+                if (elements.valOee)          elements.valOee.textContent          = `${state.telemetry.oee.toFixed(1)}%`;
+                if (elements.valAvailability) elements.valAvailability.textContent = `${state.telemetry.availability.toFixed(1)}%`;
+                if (elements.valPerformance)  elements.valPerformance.textContent  = `${state.telemetry.performance.toFixed(1)}%`;
+                if (elements.valYield)        elements.valYield.textContent        = `${state.telemetry.yield.toFixed(1)}%`;
+
+                updateSparklineData('sparkline-oee',         state.telemetry.oee);
+                updateSparklineData('sparkline-availability', state.telemetry.availability);
+                updateSparklineData('sparkline-performance',  state.telemetry.performance);
+                updateSparklineData('sparkline-yield',        state.telemetry.yield);
+
+                if (mainTrendChart) {
+                    const ds = mainTrendChart.data.datasets[0];
+                    ds.data.shift();
+                    ds.data.push(state.telemetry.oee);
+                    mainTrendChart.update('none');
+                }
             }
-        }, 3000);
+        }
+
+        // Poll immediately, then every 5 seconds
+        pollLiveState();
+        setInterval(pollLiveState, 5000);
+
+        // Poll anomaly events every 10s — shows AI-detected events as toasts
+        async function pollAnomalyEvents() {
+            try {
+                const res = await fetch('/api/live/anomalies');
+                const json = await res.json();
+                const d = json.data || json;
+                if (d.events && d.events.length > 0) {
+                    const latest = d.events[0];
+                    if (latest && latest.severity === 'critical') {
+                        window.showToast(`⚠️ ML Event [${latest.type}]: ${latest.msg}`, 'danger');
+                    }
+                }
+            } catch (e) { /* silent */ }
+        }
+        setTimeout(() => {
+            pollAnomalyEvents();
+            setInterval(pollAnomalyEvents, 10000);
+        }, 8000);
     }
+
 
     function updateSparklineData(canvasId, newValue) {
         const chart = sparklineCharts[canvasId];

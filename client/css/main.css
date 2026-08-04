@@ -10,11 +10,17 @@
     padding: 0;
 }
 
+html {
+    min-width: 320px;
+    scroll-behavior: smooth;
+}
+
 body.dashboard-body {
     font-family: var(--font-main);
     background-color: var(--bg-primary);
     color: var(--text-primary);
     min-height: 100vh;
+    min-width: 320px;
     overflow-x: hidden;
     transition: background-color var(--duration-normal) var(--ease-in-out),
                 color var(--duration-normal) var(--ease-in-out);
@@ -42,6 +48,8 @@ body.dashboard-body {
     max-width: 100%;
     overflow-x: hidden;
     position: relative;
+    /* Prevent any child from warping the layout */
+    align-items: stretch;
 }
 
 /* ── SIDEBAR STYLE ── */
@@ -334,7 +342,8 @@ body.dashboard-body {
     display: flex;
     flex-direction: column;
     height: 100vh;
-    overflow: hidden;
+    overflow-y: auto;
+    overflow-x: hidden;
 }
 
 /* ── HEADER STYLE ── */
