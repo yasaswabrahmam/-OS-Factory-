@@ -123,15 +123,34 @@
 
             <!-- Sidebar Footer / User Profile -->
             <div class="sidebar-footer">
-                <div class="user-profile-widget">
-                    <img src="https://ui-avatars.com/api/?name=Alexander+Vance&background=0D8ABC&color=fff" alt="Alexander Vance" class="user-avatar-img">
+                <div class="user-profile-widget" id="user-profile-widget" onclick="openAccountModal()" style="cursor:pointer;" title="Click to switch account">
+                    <img src="https://ui-avatars.com/api/?name=Alexander+Vance&background=0D8ABC&color=fff" alt="User Avatar" class="user-avatar-img" id="sidebar-avatar">
                     <div class="user-meta">
-                        <span class="user-name">Alexander Vance</span>
-                        <span class="user-role">Plant Manager</span>
+                        <span class="user-name" id="sidebar-user-name">Alexander Vance</span>
+                        <span class="user-role" id="sidebar-user-role">Plant Manager</span>
                     </div>
-                    <button class="logout-btn" aria-label="Settings">
-                        <i data-lucide="settings"></i>
+                    <button class="logout-btn" aria-label="Switch Account" style="color: #8b5cf6;">
+                        <i data-lucide="chevrons-up-down"></i>
                     </button>
+                </div>
+
+                <!-- Account Switcher Modal -->
+                <div id="account-modal" style="display:none; position:fixed; inset:0; z-index:9999; background:rgba(0,0,0,0.7); backdrop-filter:blur(8px); align-items:center; justify-content:center;">
+                    <div style="background:#0f0a2e; border:1px solid rgba(139,92,246,0.4); border-radius:20px; padding:32px; width:420px; max-width:95vw; box-shadow:0 30px 80px rgba(0,0,0,0.8);">
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:24px;">
+                            <h3 style="font-family:'Outfit',sans-serif; font-size:18px; font-weight:700; background:linear-gradient(135deg,#c084fc,#38bdf8); -webkit-background-clip:text; -webkit-text-fill-color:transparent;">Switch Account</h3>
+                            <button onclick="closeAccountModal()" style="background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); border-radius:8px; padding:6px 10px; color:#94a3b8; cursor:pointer; font-size:12px;">✕ Close</button>
+                        </div>
+                        <!-- Profile List -->
+                        <div id="account-profiles-list" style="display:flex; flex-direction:column; gap:10px; margin-bottom:20px;"></div>
+                        <!-- Custom Account Form -->
+                        <div style="border-top:1px solid rgba(255,255,255,0.08); padding-top:18px;">
+                            <p style="font-size:11px; color:#94a3b8; margin-bottom:12px; font-weight:600; text-transform:uppercase; letter-spacing:0.5px;">Add Custom Profile</p>
+                            <input id="new-account-name" type="text" placeholder="Full Name (e.g. Yasaswa Brahmam)" style="width:100%; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.1); border-radius:10px; padding:10px 14px; color:#f1f5f9; font-size:13px; margin-bottom:8px; outline:none;">
+                            <input id="new-account-role" type="text" placeholder="Role (e.g. Plant Director)" style="width:100%; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.1); border-radius:10px; padding:10px 14px; color:#f1f5f9; font-size:13px; margin-bottom:12px; outline:none;">
+                            <button onclick="addCustomAccount()" style="width:100%; background:linear-gradient(135deg,#8b5cf6,#06b6d4); border:none; border-radius:10px; padding:11px; color:white; font-weight:700; font-family:'Outfit',sans-serif; cursor:pointer; font-size:14px;">+ Add & Switch Profile</button>
+                        </div>
+                    </div>
                 </div>
                 <!-- Local Plant Weather Widget matching Photo 1 -->
                 <div class="weather-widget" style="display:flex; align-items:center; gap:10px; margin-top:12px; padding:8px 12px; background:rgba(255,255,255,0.02); border:1px solid var(--glass-border); border-radius:var(--radius-md);">

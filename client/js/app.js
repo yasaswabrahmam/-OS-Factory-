@@ -1759,18 +1759,203 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // ── Keyboard Shortcuts ──
     document.addEventListener('keydown', (e) => {
-        // Ctrl+/ -> Focus search
         if (e.ctrlKey && e.key === '/') {
             e.preventDefault();
-            document.getElementById('sidebar-search-input').focus();
+            const s = document.getElementById('sidebar-search-input');
+            if (s) s.focus();
         }
-        // Ctrl+K -> Focus global commands
         if (e.ctrlKey && e.key === 'k') {
             e.preventDefault();
-            elements.globalSearch = document.getElementById('global-search');
-            elements.globalSearch.focus();
+            const g = document.getElementById('global-search');
+            if (g) g.focus();
+        }
+        // Escape closes account modal
+        if (e.key === 'Escape') {
+            closeAccountModal();
         }
     });
+
+    // ── Search Functionality (Sidebar + Global) ──
+    const NAV_ITEMS_MAP = [
+        { keywords: ['dashboard', 'overview', 'home', 'oee', 'kpi'], hash: '#dashboard' },
+        { keywords: ['copilot', 'ai', 'chat', 'assistant', 'bot'], hash: '#copilot', fn: () => document.getElementById('ai-drawer').classList.add('open') },
+        { keywords: ['production', 'line', 'output', 'units'], hash: '#production' },
+        { keywords: ['maintenance', 'repair', 'work order', 'technician'], hash: '#maintenance' },
+        { keywords: ['quality', 'defect', 'fpy', 'vision', 'cognex'], hash: '#quality' },
+        { keywords: ['inventory', 'stock', 'carbon', 'fiber', 'battery'], hash: '#inventory' },
+        { keywords: ['analytics', 'monte carlo', 'simulation'], hash: '#analytics' },
+        { keywords: ['recommendations', 'suggestion', 'advice'], hash: '#recommendations' },
+        { keywords: ['alerts', 'alarm', 'warning', 'critical'], hash: '#alerts' },
+        { keywords: ['upload', 'data', 'import', 'dataset'], hash: '#upload' },
+        { keywords: ['reports', 'pdf', 'export', 'download'], hash: '#reports' },
+        { keywords: ['settings', 'account', 'profile', 'theme'], hash: '#settings' }
+    ];
+
+    function runSearch(query) {
+        if (!query || query.trim().length < 1) return;
+        const q = query.toLowerCase().trim();
+
+        // First try to open AI Copilot if query is conversational
+        const conversational = ['what', 'how', 'why', 'show', 'tell', 'find', 'help', 'oee', 'alert', 'error', 'risk', 'status'];
+        const isQuestion = conversational.some(w => q.includes(w)) || q.length > 15;
+
+        if (isQuestion) {
+            // Route to copilot and ask
+            document.getElementById('ai-drawer').classList.add('open');
+            if (elements.chatInput) {
+                elements.chatInput.value = query;
+                setTimeout(() => sendMessageToCopilot(), 150);
+            }
+            return;
+        }
+
+        // Try to match a nav section
+        for (const item of NAV_ITEMS_MAP) {
+            if (item.keywords.some(k => q.includes(k) || k.includes(q))) {
+                if (item.fn) {
+                    item.fn();
+                } else {
+                    window.location.hash = item.hash;
+                }
+                showToast(`Navigating to: ${item.hash.replace('#', '').toUpperCase()}`, 'info');
+                return;
+            }
+        }
+
+        // Fallback — show toast
+        showToast(`No match found for "${query}". Try: dashboard, alerts, maintenance, quality...`, 'warning');
+    }
+
+    // Sidebar search
+    const sidebarSearchInput = document.getElementById('sidebar-search-input');
+    if (sidebarSearchInput) {
+        let sidebarDebounce = null;
+        sidebarSearchInput.addEventListener('input', (e) => {
+            clearTimeout(sidebarDebounce);
+            const q = e.target.value.trim();
+            // Filter sidebar nav items
+            document.querySelectorAll('.sidebar-nav a').forEach(link => {
+                const text = link.textContent.toLowerCase();
+                link.closest('li') && (link.closest('li').style.display = (!q || text.includes(q)) ? '' : 'none');
+            });
+        });
+        sidebarSearchInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' && e.target.value.trim()) {
+                runSearch(e.target.value.trim());
+                e.target.value = '';
+                document.querySelectorAll('.sidebar-nav a').forEach(link => {
+                    if (link.closest('li')) link.closest('li').style.display = '';
+                });
+            }
+        });
+    }
+
+    // Global header search
+    const globalSearchEl = document.getElementById('global-search');
+    if (globalSearchEl) {
+        globalSearchEl.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' && e.target.value.trim()) {
+                runSearch(e.target.value.trim());
+                e.target.value = '';
+            }
+        });
+    }
+
+    // ── Account Switcher System ──
+    const DEFAULT_ACCOUNTS = [
+        { name: 'Alexander Vance', role: 'Plant Manager', color: '0D8ABC' },
+        { name: 'Yasaswa Brahmam', role: 'Plant Director / Dev', color: '7C3AED' },
+        { name: 'Aravind Ariv', role: 'System Engineer', color: '059669' },
+        { name: 'Guest Operator', role: 'View Only Access', color: '64748B' }
+    ];
+
+    let accounts = JSON.parse(localStorage.getItem('fos_accounts') || 'null') || DEFAULT_ACCOUNTS;
+    let activeAccountIndex = parseInt(localStorage.getItem('fos_active_account') || '0');
+
+    function saveAccounts() {
+        localStorage.setItem('fos_accounts', JSON.stringify(accounts));
+        localStorage.setItem('fos_active_account', String(activeAccountIndex));
+    }
+
+    function applyAccount(index) {
+        const acc = accounts[index];
+        if (!acc) return;
+        activeAccountIndex = index;
+        saveAccounts();
+
+        // Update sidebar
+        const nameEl = document.getElementById('sidebar-user-name');
+        const roleEl = document.getElementById('sidebar-user-role');
+        const avatarEl = document.getElementById('sidebar-avatar');
+        const headerAvatarEl = document.querySelector('.profile-avatar');
+
+        if (nameEl) nameEl.textContent = acc.name;
+        if (roleEl) roleEl.textContent = acc.role;
+
+        const avatarUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(acc.name)}&background=${acc.color}&color=fff`;
+        if (avatarEl) avatarEl.src = avatarUrl;
+        if (headerAvatarEl) headerAvatarEl.src = avatarUrl;
+
+        // Update AI copilot greeting name
+        const firstName = acc.name.split(' ')[0];
+        showToast(`Switched to: ${acc.name} (${acc.role})`, 'success');
+        renderAccountModal();
+    }
+
+    function renderAccountModal() {
+        const list = document.getElementById('account-profiles-list');
+        if (!list) return;
+        list.innerHTML = '';
+        accounts.forEach((acc, i) => {
+            const isActive = i === activeAccountIndex;
+            const div = document.createElement('div');
+            div.style.cssText = `display:flex; align-items:center; gap:12px; padding:12px 14px; border-radius:12px; cursor:pointer; border:1px solid ${isActive ? 'rgba(139,92,246,0.6)' : 'rgba(255,255,255,0.06)'}; background:${isActive ? 'rgba(139,92,246,0.12)' : 'rgba(255,255,255,0.02)'}; transition:all 0.2s;`;
+            div.innerHTML = `
+                <img src="https://ui-avatars.com/api/?name=${encodeURIComponent(acc.name)}&background=${acc.color}&color=fff" style="width:36px; height:36px; border-radius:50%; border:2px solid #${acc.color}40;">
+                <div style="flex:1;">
+                    <div style="font-weight:700; font-size:14px; color:${isActive ? '#c084fc' : '#f1f5f9'};">${acc.name}</div>
+                    <div style="font-size:11px; color:#64748b;">${acc.role}</div>
+                </div>
+                ${isActive ? '<span style="font-size:11px; color:#c084fc; font-weight:700; background:rgba(139,92,246,0.15); padding:2px 8px; border-radius:6px;">ACTIVE</span>' : '<span style="font-size:11px; color:#475569; padding:2px 8px;">Switch →</span>'}
+            `;
+            div.onclick = () => { applyAccount(i); closeAccountModal(); };
+            // Hover effect
+            div.onmouseenter = () => { if (!isActive) div.style.background = 'rgba(255,255,255,0.05)'; };
+            div.onmouseleave = () => { if (!isActive) div.style.background = 'rgba(255,255,255,0.02)'; };
+            list.appendChild(div);
+        });
+    }
+
+    window.openAccountModal = () => {
+        renderAccountModal();
+        const modal = document.getElementById('account-modal');
+        if (modal) { modal.style.display = 'flex'; }
+    };
+
+    window.closeAccountModal = () => {
+        const modal = document.getElementById('account-modal');
+        if (modal) modal.style.display = 'none';
+    };
+
+    window.addCustomAccount = () => {
+        const nameInput = document.getElementById('new-account-name');
+        const roleInput = document.getElementById('new-account-role');
+        const name = nameInput ? nameInput.value.trim() : '';
+        const role = roleInput ? roleInput.value.trim() : '';
+
+        if (!name) { showToast('Please enter a full name.', 'warning'); return; }
+        const colors = ['8B5CF6', 'EF4444', 'F59E0B', '10B981', 'EC4899', '3B82F6'];
+        const color = colors[Math.floor(Math.random() * colors.length)];
+        accounts.push({ name, role: role || 'Team Member', color });
+        saveAccounts();
+        applyAccount(accounts.length - 1);
+        if (nameInput) nameInput.value = '';
+        if (roleInput) roleInput.value = '';
+        closeAccountModal();
+    };
+
+    // Apply saved account on load
+    applyAccount(activeAccountIndex);
 
     // ── Initialization ──
     initTheme();

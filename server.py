@@ -272,19 +272,164 @@ class FactoryOSRequestHandler(SimpleHTTPRequestHandler):
                 "schemaValidated": True
             })
         elif path == '/api/ai/tutor/chat':
-            msg = str(body_data.get('message', '')).lower()
+            msg_raw = str(body_data.get('message', ''))
+            msg = msg_raw.lower().strip()
             sp = float(body_data.get('speed', 12.0))
             pr = float(body_data.get('pressure', 210.0))
             tele = predict_telemetry(sp, pr)
+            risk = tele['failureRisk']
+            z = tele['zScore']
+            rul = tele['rul']
+            status = tele['status']
+            forecast = tele['oeeForecast']
 
-            if 'press' in msg or 'schuler' in msg or 'pressure' in msg:
-                reply = f"⚠️ **Schuler Press Diagnostic (Python Engine):** Z-Score is **{tele['zScore']} Z** (Failure Risk: **{tele['failureRisk']}%**). Operating at **{sp} SPM** and **{pr} Bar**. Predicted RUL: **{tele['rul']} hrs**."
-            elif 'oee' in msg or 'forecast' in msg:
-                reply = f"📊 **ARIMA OEE Forecast:** Current OEE is baseline 87.4%. Forecast trajectory for next 6 shifts: {tele['oeeForecast']}."
-            elif 'carbon' in msg or 'fiber' in msg or 'stock' in msg:
-                reply = "📦 **Inventory Stock Report:** Pre-preg Carbon Fiber is at **340 rolls** (safety limit: 500 rolls). Replenishment order PO-44912-SAP is active."
+            # ── Intelligent Multi-Context AI Brain ──
+            if any(k in msg for k in ['hello', 'hi', 'hey', 'start', 'good morning', 'good evening']):
+                reply = (f"👋 **Hello! I'm Factory OS AI Copilot** — your intelligent manufacturing assistant powered by Python ML.\n\n"
+                         f"**Current Plant Status:**\n"
+                         f"• System: **{status}** | Z-Score: **{z} Z**\n"
+                         f"• Failure Risk: **{risk}%** | RUL: **{rul} hrs**\n\n"
+                         f"Ask me anything about production, maintenance, OEE, quality, inventory, alerts, or analytics!")
+
+            elif any(k in msg for k in ['press', 'schuler', 'hydraulic', 'cylinder', 'valve', 'pump']):
+                action = "🚨 **DISPATCH MAINTENANCE NOW**" if risk > 50 else "✅ Monitor closely"
+                reply = (f"🔧 **Schuler Hydraulic Press Diagnostic (Python ML Engine)**\n\n"
+                         f"• Operating Speed: **{sp} SPM** | Pressure: **{pr} Bar**\n"
+                         f"• Z-Score Anomaly: **{z} Z** {'⚠️ ANOMALY DETECTED' if z > 2.25 else '✅ Normal'}\n"
+                         f"• Failure Risk: **{risk}%** {'🔴 CRITICAL' if risk > 65 else '🟡 Elevated' if risk > 30 else '🟢 Low'}\n"
+                         f"• Remaining Useful Life: **{rul} hours**\n\n"
+                         f"**Recommendation:** {action}\n"
+                         f"{'• Check Cylinder B-2 proportional valve seal. Pressure decay at 248 Bar.' if pr > 240 else '• Hydraulics within nominal operating envelope.'}")
+
+            elif any(k in msg for k in ['oee', 'overall equipment', 'efficiency', 'performance', 'forecast']):
+                trend = "📈 Upward" if forecast[-1] > forecast[0] else "📉 Declining"
+                reply = (f"📊 **OEE Intelligence Report (ARIMA Python Forecaster)**\n\n"
+                         f"• Current Baseline OEE: **87.4%**\n"
+                         f"• Benchmark Compliance: **>95.0%** target\n"
+                         f"• 6-Shift ARIMA Forecast: **{forecast}**\n"
+                         f"• Trend Direction: **{trend}**\n\n"
+                         f"**Plant Breakdown:**\n"
+                         f"• Detroit Alpha: 90.7% | Austin Beta: 94.2%\n"
+                         f"• Berlin Gamma: 91.8% | Shanghai Delta: 95.1%\n\n"
+                         f"**Top Improvement Area:** {'Reduce mechanical downtime (110 mins/shift)' if risk < 50 else 'Address critical failure risk immediately'}")
+
+            elif any(k in msg for k in ['maintenance', 'work order', 'repair', 'fix', 'technician', 'service', 'pm']):
+                reply = (f"🔩 **Predictive Maintenance Intelligence**\n\n"
+                         f"**Active Work Orders:**\n"
+                         f"• WO-2026-0941 — Schuler Press Cylinder B-2: Proportional valve seal (**Approved**)\n"
+                         f"• WO-2026-1120 — Paint Oven B Exhaust: Belt alignment (**In Progress**)\n"
+                         f"• WO-2026-0348 — Welder Tips Arc Cell A: Resurfacing (**Completed**)\n\n"
+                         f"**Current Telemetry Risk:** {risk}% failure probability\n"
+                         f"**Predicted RUL:** {rul} hours remaining\n\n"
+                         f"**Action:** {'🚨 Escalate to emergency maintenance immediately' if risk > 65 else '📋 Schedule next available maintenance window'}")
+
+            elif any(k in msg for k in ['quality', 'defect', 'vision', 'cognex', 'fpy', 'yield', 'inspection', 'dpmo']):
+                reply = (f"🔬 **Cognex Vision AI Quality Intelligence**\n\n"
+                         f"• Vision Model: **Cognex ViDi Deep Learning v4.2**\n"
+                         f"• First Pass Yield: **98.8%** (Target: >98.5%)\n"
+                         f"• DPMO: **142.5** (Six Sigma Level: 5.2σ)\n\n"
+                         f"**Active Defects (Last 4 Hours):**\n"
+                         f"• DF-9910 — Door Panel: Surface Tear (10 mins ago)\n"
+                         f"• DF-9912 — Battery Pack Plate: Weld Splatter (1 hr ago)\n"
+                         f"• DF-9915 — Press Cap Cylinder-B: Friction Scuff (3 hrs ago)\n\n"
+                         f"**Quality Gate Status:** 🟢 **PASSING** all ISO 9001 thresholds")
+
+            elif any(k in msg for k in ['inventory', 'stock', 'carbon', 'fiber', 'material', 'battery', 'steel', 'spare']):
+                reply = (f"📦 **Warehouse Inventory Intelligence**\n\n"
+                         f"• Lithium Battery Packs: **120/150 units** 🟢 Healthy\n"
+                         f"• Austenite Sheet Steel: **450/500 sheets** 🟢 Healthy\n"
+                         f"• Pre-preg Carbon Fiber: **340/500 rolls** 🟡 Refill Triggered\n"
+                         f"• Proportional Valve Seals: **2/10 kits** 🔴 **CRITICAL LOW**\n\n"
+                         f"**Active Purchase Orders (SAP MM):**\n"
+                         f"• PO-88219-SAP — Valve Seals (5 kits): **Released**\n"
+                         f"• PO-44912-SAP — Carbon Fiber (160 rolls): **Completed**\n\n"
+                         f"**Alert:** Valve Seal stock critically low — delivery ETA: 48hrs")
+
+            elif any(k in msg for k in ['alert', 'alarm', 'warning', 'critical', 'error', 'issue', 'problem']):
+                reply = (f"🚨 **Active Plant Alerts ({status} System)**\n\n"
+                         f"• 🔴 CRITICAL: Schuler Press — Hydraulic Pressure Decay Cylinder B-2 (1 hr ago)\n"
+                         f"• 🟡 WARNING: ISO 10816 Vibration threshold exceeded (12 mins ago)\n"
+                         f"• ℹ️ INFO: Carbon Fiber stock at 68% safety threshold (3 hrs ago)\n\n"
+                         f"**ML Anomaly Detection:**\n"
+                         f"• Z-Score: **{z} Z** {'🔴 Anomaly' if z > 2.25 else '🟢 Normal'}\n"
+                         f"• Failure Probability: **{risk}%**\n\n"
+                         f"**Recommended Actions:** {'Immediate inspection of Cylinder B-2' if risk > 30 else 'Continue monitoring'}")
+
+            elif any(k in msg for k in ['analytics', 'monte carlo', 'simulation', 'risk', 'probability', 'statistics']):
+                mc = run_monte_carlo(500, 95.0, sp, pr)
+                reply = (f"📈 **Monte Carlo Risk Analytics (500 Iterations)**\n\n"
+                         f"• P(OEE ≥ 95%): **{mc['passProbability']}%**\n"
+                         f"• P10 (Pessimistic): **{mc['p10']}%**\n"
+                         f"• P50 (Expected): **{mc['p50']}%**\n"
+                         f"• P90 (Optimistic): **{mc['p90']}%**\n"
+                         f"• Mean OEE: **{mc['mean']}%** | Std Dev: **{mc['stdDev']}%**\n\n"
+                         f"**Risk Assessment:** {'⚠️ High risk of missing OEE target' if mc['passProbability'] < 30 else '✅ Good probability of meeting OEE target'}")
+
+            elif any(k in msg for k in ['production', 'line', 'shift', 'output', 'throughput', 'rate', 'units']):
+                reply = (f"🏭 **Production Intelligence Report**\n\n"
+                         f"**Active Production Lines:**\n"
+                         f"• L1 Main Press Line: OEE **89.2%** | 15 SPM | 1 alert\n"
+                         f"• L2 Body Welding Cell A: OEE **92.4%** | 24 robots | ✅\n"
+                         f"• L3 Paint Oven B: OEE **45.1%** | 🔴 Maintenance\n"
+                         f"• L4 Final Assembly Line 1: OEE **88.5%** | 45 JPH | ✅\n"
+                         f"• L5 Battery Pack Integration: OEE **96.2%** | 22 packs/hr | ✅\n\n"
+                         f"**Shift Summary:**\n"
+                         f"• Alpha: 93.8% OEE | 4,120 units output\n"
+                         f"• Bravo: 92.1% OEE | 3,980 units output\n"
+                         f"• Charlie: 89.6% OEE | 3,740 units output")
+
+            elif any(k in msg for k in ['temperature', 'temp', 'heat', 'thermal', 'cooling', 'oven']):
+                reply = (f"🌡️ **Thermal Monitoring Intelligence**\n\n"
+                         f"• Current Operating Temperature: **{round(65 + (sp-12)*0.5 + random.random()*2, 1)}°C**\n"
+                         f"• Safe Operating Range: 40°C – 120°C\n"
+                         f"• Thermal Z-Score: **{round(abs(65 - 65)/8, 2)} Z** ✅ Normal\n"
+                         f"• Paint Oven B: Currently in maintenance — thermal offline\n\n"
+                         f"**ISO 10816 Vibration Status:** {round(1.4 + random.random()*0.3, 2)} mm/s (Class A — GOOD)")
+
+            elif any(k in msg for k in ['z score', 'zscore', 'anomaly', 'detect', 'vibration', 'sensor', 'ml', 'model', 'algorithm']):
+                reply = (f"🧠 **Python AI/ML Model Status**\n\n"
+                         f"**Active ML Engines:**\n"
+                         f"• Z-Score Anomaly Engine: **{z} Z** {'🔴 ANOMALY' if z > 2.25 else '🟢 Nominal'}\n"
+                         f"• Logistic Sigmoid Risk: **{risk}%** failure probability\n"
+                         f"• RUL Regressor: **{rul} hrs** remaining useful life\n"
+                         f"• ARIMA Forecaster: 6-shift trajectory computed\n"
+                         f"• Monte Carlo: 1,000-trial OEE confidence simulation ready\n"
+                         f"• Cognex ViDi Vision AI: Active defect inspection running\n\n"
+                         f"**Formula:** Z = √((Z_speed² + Z_press² + Z_temp² + Z_vib²) / 4)\n"
+                         f"**Current composite Z = {z}** {'⚠️ Exceeds 2.25 threshold!' if z > 2.25 else '✅ Below 2.25 safe threshold'}")
+
+            elif any(k in msg for k in ['report', 'pdf', 'export', 'download', 'summary']):
+                reply = (f"📄 **Report Generation Status**\n\n"
+                         f"**Available Reports:**\n"
+                         f"• Factory_OS_Data_AI_ML_Report.pdf (1.2 MB) — Today\n"
+                         f"• Shift_Alpha_OEE_Summary_Q3.pdf (840 KB) — Yesterday\n"
+                         f"• Cognex_Vision_AI_Defects.csv (320 KB) — Aug 02, 2026\n\n"
+                         f"**Factory OS Project Review PDF:** Available locally\n"
+                         f"**GitHub Repository:** https://github.com/yasaswabrahmam/-OS-Factory-\n\n"
+                         f"To generate a new report, go to **Reports** view and click Generate.")
+
+            elif any(k in msg for k in ['help', 'what can you do', 'capabilities', 'features', 'commands']):
+                reply = (f"🤖 **Factory OS AI Copilot — Full Capabilities**\n\n"
+                         f"I can help you with:\n"
+                         f"• 📊 **OEE & Forecasting** — Real-time and 6-shift ARIMA predictions\n"
+                         f"• 🔧 **Maintenance** — Predictive RUL, work orders, failure risk\n"
+                         f"• 🔬 **Quality** — Cognex Vision AI defect analysis\n"
+                         f"• 📦 **Inventory** — Stock levels and SAP MM requisitions\n"
+                         f"• 🚨 **Alerts** — Active critical/warning/info alerts\n"
+                         f"• 🧠 **ML Models** — Z-Score, Monte Carlo, ARIMA details\n"
+                         f"• 🏭 **Production** — Line status, shift matrices\n"
+                         f"• 🌡️ **Thermal/Vibration** — ISO 10816 sensor analysis\n\n"
+                         f"Just type your question naturally!")
+
             else:
-                reply = f"Hello Alexander. Factory OS Python AI Copilot active for Detroit Plant Alpha. Telemetry Status: **{tele['status']}** (Speed: {sp} SPM, Pressure: {pr} Bar)."
+                # Smart general fallback with live telemetry context
+                reply = (f"🏭 **Factory OS AI Response** | Plant: Detroit Alpha | {datetime.now().strftime('%H:%M:%S')}\n\n"
+                         f"I understood your query: *\"{msg_raw[:80]}{'...' if len(msg_raw) > 80 else ''}\"*\n\n"
+                         f"**Live System Status:**\n"
+                         f"• System: **{status}** | Z-Score: **{z} Z** | Risk: **{risk}%**\n"
+                         f"• Speed: {sp} SPM | Pressure: {pr} Bar | RUL: **{rul} hrs**\n\n"
+                         f"Could you be more specific? Try asking about:\n"
+                         f"*OEE, maintenance, quality, inventory, alerts, analytics, production, or ML models*")
 
             self._send_json({"role": "assistant", "content": reply, "timestamp": datetime.now().isoformat()})
         else:
