@@ -38,12 +38,17 @@ body.dashboard-body {
 .app-layout {
     display: flex;
     min-height: 100vh;
-    width: 100vw;
+    width: 100%;
+    max-width: 100%;
+    overflow-x: hidden;
+    position: relative;
 }
 
 /* ── SIDEBAR STYLE ── */
 .app-sidebar {
     width: var(--nav-width);
+    min-width: var(--nav-width);
+    flex-shrink: 0;
     background: var(--glass-bg);
     border-right: 1px solid var(--glass-border);
     backdrop-filter: var(--glass-blur);
@@ -324,6 +329,8 @@ body.dashboard-body {
 /* ── MAIN CONTENT AREA ── */
 .app-main {
     flex: 1;
+    min-width: 0;
+    max-width: 100%;
     display: flex;
     flex-direction: column;
     height: 100vh;
@@ -710,7 +717,11 @@ body.dashboard-body {
 /* ── VIEWPORT CONTAINER ── */
 .view-container {
     flex: 1;
+    min-width: 0;
+    max-width: 100%;
+    width: 100%;
     overflow-y: auto;
+    overflow-x: hidden;
     padding: var(--space-6);
 }
 
@@ -718,6 +729,9 @@ body.dashboard-body {
     display: none;
     flex-direction: column;
     gap: var(--space-6);
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
 }
 
 .dashboard-view.active {
