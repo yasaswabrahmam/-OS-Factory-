@@ -1980,6 +1980,90 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // Expose to global scope immediately (HTML onclick needs these)
+    window.openProfileMenu = () => {
+        const acc = accounts[activeAccountIndex] || accounts[0];
+        const menuModal = document.getElementById('profile-menu-modal');
+        const menuName  = document.getElementById('menu-user-name');
+        const menuRole  = document.getElementById('menu-user-role');
+        const menuFb    = document.getElementById('menu-avatar-fallback');
+
+        if (menuName) menuName.textContent = acc.name;
+        if (menuRole) menuRole.textContent = acc.role;
+
+        const parts = acc.name.trim().split(/[\s-]+/);
+        let initials = parts.length >= 2 ? (parts[0][0] + parts[1][0]) : acc.name.slice(0, 2);
+        initials = initials.toUpperCase();
+
+        if (menuFb) {
+            menuFb.textContent = initials;
+            menuFb.style.background = `#${acc.color}`;
+        }
+
+        if (menuModal) menuModal.style.display = 'flex';
+    };
+
+    window.closeProfileMenu = () => {
+        const menuModal = document.getElementById('profile-menu-modal');
+        if (menuModal) menuModal.style.display = 'none';
+    };
+
+    window.openSettingsFromMenu = () => {
+        window.closeProfileMenu();
+        window.location.hash = '#settings';
+        handleRoute();
+        window.showToast('⚙️ Navigated to Settings & Preferences', 'info');
+    };
+
+    window.openAccountModalFromMenu = () => {
+        window.closeProfileMenu();
+        window.openAccountModal();
+    };
+
+    window.logoutUser = () => {
+        window.closeProfileMenu();
+        localStorage.setItem('fos_logged_in', 'false');
+        window.showToast('🔒 Logged out of Factory OS Console', 'warning');
+        window.showLoginScreen();
+    };
+
+    window.showLoginScreen = () => {
+        const screen = document.getElementById('login-screen');
+        const quickContainer = document.getElementById('login-quick-accounts');
+        if (quickContainer) {
+            quickContainer.innerHTML = '';
+            accounts.forEach((acc, i) => {
+                const div = document.createElement('div');
+                div.style.cssText = 'display:flex; align-items:center; gap:10px; padding:8px 12px; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); border-radius:10px; cursor:pointer; transition:all 0.2s;';
+                div.innerHTML = `
+                    <div style="width:28px; height:28px; border-radius:50%; background:#${acc.color}; color:#fff; display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:700;">${acc.name.slice(0,2).toUpperCase()}</div>
+                    <div style="flex:1; min-width:0;">
+                        <div style="font-size:12px; font-weight:700; color:#f1f5f9;">${acc.name}</div>
+                        <div style="font-size:10px; color:#64748b;">${acc.role}</div>
+                    </div>
+                    <span style="font-size:10px; color:#c084fc; font-weight:700;">Select →</span>
+                `;
+                div.onmouseenter = () => div.style.background = 'rgba(139,92,246,0.15)';
+                div.onmouseleave = () => div.style.background = 'rgba(255,255,255,0.03)';
+                div.onclick = () => {
+                    applyAccount(i, false);
+                    const emailInput = document.getElementById('login-email-input');
+                    if (emailInput) emailInput.value = `${acc.name.toLowerCase().replace(/\s+/g, '.')}@factoryos.io`;
+                };
+                quickContainer.appendChild(div);
+            });
+        }
+        if (screen) screen.style.display = 'flex';
+    };
+
+    window.handleLoginSubmit = (e) => {
+        if (e) e.preventDefault();
+        const screen = document.getElementById('login-screen');
+        localStorage.setItem('fos_logged_in', 'true');
+        if (screen) screen.style.display = 'none';
+        const currentAcc = accounts[activeAccountIndex] || accounts[0];
+        window.showToast(`🟢 Welcome back, ${currentAcc.name}! Console unlocked.`, 'success');
+    };
+
     window.openAccountModal = () => {
         renderAccountProfiles();
         const modal = document.getElementById('account-modal');
@@ -2011,6 +2095,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Apply active account silently on page load (no toast on first load)
     applyAccount(activeAccountIndex, false);
+
+    // Check login state on load
+    if (localStorage.getItem('fos_logged_in') === 'false') {
+        window.showLoginScreen();
+    }
 
     // ── Search Functionality (Sidebar + Global Header) ──
     const NAV_MAP = [
@@ -2226,6 +2315,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         if (e.key === 'Escape') {
             window.closeAccountModal();
+            window.closeProfileMenu();
         }
     });
 
