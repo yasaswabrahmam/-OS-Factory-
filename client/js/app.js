@@ -1757,120 +1757,24 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // ── Keyboard Shortcuts ──
-    document.addEventListener('keydown', (e) => {
-        if (e.ctrlKey && e.key === '/') {
-            e.preventDefault();
-            const s = document.getElementById('sidebar-search-input');
-            if (s) s.focus();
-        }
-        if (e.ctrlKey && e.key === 'k') {
-            e.preventDefault();
-            const g = document.getElementById('global-search');
-            if (g) g.focus();
-        }
-        // Escape closes account modal
-        if (e.key === 'Escape') {
-            closeAccountModal();
-        }
-    });
-
-    // ── Search Functionality (Sidebar + Global) ──
-    const NAV_ITEMS_MAP = [
-        { keywords: ['dashboard', 'overview', 'home', 'oee', 'kpi'], hash: '#dashboard' },
-        { keywords: ['copilot', 'ai', 'chat', 'assistant', 'bot'], hash: '#copilot', fn: () => document.getElementById('ai-drawer').classList.add('open') },
-        { keywords: ['production', 'line', 'output', 'units'], hash: '#production' },
-        { keywords: ['maintenance', 'repair', 'work order', 'technician'], hash: '#maintenance' },
-        { keywords: ['quality', 'defect', 'fpy', 'vision', 'cognex'], hash: '#quality' },
-        { keywords: ['inventory', 'stock', 'carbon', 'fiber', 'battery'], hash: '#inventory' },
-        { keywords: ['analytics', 'monte carlo', 'simulation'], hash: '#analytics' },
-        { keywords: ['recommendations', 'suggestion', 'advice'], hash: '#recommendations' },
-        { keywords: ['alerts', 'alarm', 'warning', 'critical'], hash: '#alerts' },
-        { keywords: ['upload', 'data', 'import', 'dataset'], hash: '#upload' },
-        { keywords: ['reports', 'pdf', 'export', 'download'], hash: '#reports' },
-        { keywords: ['settings', 'account', 'profile', 'theme'], hash: '#settings' }
-    ];
-
-    function runSearch(query) {
-        if (!query || query.trim().length < 1) return;
-        const q = query.toLowerCase().trim();
-
-        // First try to open AI Copilot if query is conversational
-        const conversational = ['what', 'how', 'why', 'show', 'tell', 'find', 'help', 'oee', 'alert', 'error', 'risk', 'status'];
-        const isQuestion = conversational.some(w => q.includes(w)) || q.length > 15;
-
-        if (isQuestion) {
-            // Route to copilot and ask
-            document.getElementById('ai-drawer').classList.add('open');
-            if (elements.chatInput) {
-                elements.chatInput.value = query;
-                setTimeout(() => sendMessageToCopilot(), 150);
-            }
-            return;
-        }
-
-        // Try to match a nav section
-        for (const item of NAV_ITEMS_MAP) {
-            if (item.keywords.some(k => q.includes(k) || k.includes(q))) {
-                if (item.fn) {
-                    item.fn();
-                } else {
-                    window.location.hash = item.hash;
-                }
-                showToast(`Navigating to: ${item.hash.replace('#', '').toUpperCase()}`, 'info');
-                return;
-            }
-        }
-
-        // Fallback — show toast
-        showToast(`No match found for "${query}". Try: dashboard, alerts, maintenance, quality...`, 'warning');
-    }
-
-    // Sidebar search
-    const sidebarSearchInput = document.getElementById('sidebar-search-input');
-    if (sidebarSearchInput) {
-        let sidebarDebounce = null;
-        sidebarSearchInput.addEventListener('input', (e) => {
-            clearTimeout(sidebarDebounce);
-            const q = e.target.value.trim();
-            // Filter sidebar nav items
-            document.querySelectorAll('.sidebar-nav a').forEach(link => {
-                const text = link.textContent.toLowerCase();
-                link.closest('li') && (link.closest('li').style.display = (!q || text.includes(q)) ? '' : 'none');
-            });
-        });
-        sidebarSearchInput.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter' && e.target.value.trim()) {
-                runSearch(e.target.value.trim());
-                e.target.value = '';
-                document.querySelectorAll('.sidebar-nav a').forEach(link => {
-                    if (link.closest('li')) link.closest('li').style.display = '';
-                });
-            }
-        });
-    }
-
-    // Global header search
-    const globalSearchEl = document.getElementById('global-search');
-    if (globalSearchEl) {
-        globalSearchEl.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter' && e.target.value.trim()) {
-                runSearch(e.target.value.trim());
-                e.target.value = '';
-            }
-        });
-    }
-
-    // ── Account Switcher System ──
+    // ── Account Switcher System (defined FIRST so modal fns are available globally) ──
     const DEFAULT_ACCOUNTS = [
-        { name: 'Alexander Vance', role: 'Plant Manager', color: '0D8ABC' },
+        { name: 'Alexander Vance', role: 'Plant Manager',       color: '0D8ABC' },
         { name: 'Yasaswa Brahmam', role: 'Plant Director / Dev', color: '7C3AED' },
-        { name: 'Aravind Ariv', role: 'System Engineer', color: '059669' },
-        { name: 'Jithesh-26', role: 'OS Factory Member', color: 'F59E0B' },
-        { name: 'Guest Operator', role: 'View Only Access', color: '64748B' }
+        { name: 'Aravind Ariv',    role: 'System Engineer',      color: '059669' },
+        { name: 'Jithesh-26',      role: 'OS Factory Member',    color: 'F59E0B' },
+        { name: 'Guest Operator',  role: 'View Only Access',     color: '64748B' }
     ];
 
-    let accounts = JSON.parse(localStorage.getItem('fos_accounts') || 'null') || DEFAULT_ACCOUNTS;
+    // Always reset localStorage so new accounts (Jithesh-26) are picked up
+    const storedVersion = localStorage.getItem('fos_accounts_version');
+    if (storedVersion !== '3') {
+        localStorage.removeItem('fos_accounts');
+        localStorage.removeItem('fos_active_account');
+        localStorage.setItem('fos_accounts_version', '3');
+    }
+
+    let accounts = JSON.parse(localStorage.getItem('fos_accounts') || 'null') || [...DEFAULT_ACCOUNTS];
     let activeAccountIndex = parseInt(localStorage.getItem('fos_active_account') || '0');
 
     function saveAccounts() {
@@ -1878,59 +1782,74 @@ document.addEventListener('DOMContentLoaded', () => {
         localStorage.setItem('fos_active_account', String(activeAccountIndex));
     }
 
-    function applyAccount(index) {
+    function applyAccount(index, showNotification) {
         const acc = accounts[index];
         if (!acc) return;
         activeAccountIndex = index;
         saveAccounts();
 
-        // Update sidebar
-        const nameEl = document.getElementById('sidebar-user-name');
-        const roleEl = document.getElementById('sidebar-user-role');
-        const avatarEl = document.getElementById('sidebar-avatar');
-        const headerAvatarEl = document.querySelector('.profile-avatar');
+        const nameEl      = document.getElementById('sidebar-user-name');
+        const roleEl      = document.getElementById('sidebar-user-role');
+        const avatarEl    = document.getElementById('sidebar-avatar');
+        const hdrAvatar   = document.querySelector('.profile-avatar');
 
-        if (nameEl) nameEl.textContent = acc.name;
-        if (roleEl) roleEl.textContent = acc.role;
+        if (nameEl)   nameEl.textContent  = acc.name;
+        if (roleEl)   roleEl.textContent  = acc.role;
 
         const avatarUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(acc.name)}&background=${acc.color}&color=fff`;
-        if (avatarEl) avatarEl.src = avatarUrl;
-        if (headerAvatarEl) headerAvatarEl.src = avatarUrl;
+        if (avatarEl)  avatarEl.src  = avatarUrl;
+        if (hdrAvatar) hdrAvatar.src = avatarUrl;
 
-        // Update AI copilot greeting name
-        const firstName = acc.name.split(' ')[0];
-        showToast(`Switched to: ${acc.name} (${acc.role})`, 'success');
-        renderAccountModal();
+        if (showNotification) {
+            window.showToast(`✅ Switched to: ${acc.name} (${acc.role})`, 'success');
+        }
+        renderAccountProfiles();
     }
 
-    function renderAccountModal() {
+    function renderAccountProfiles() {
         const list = document.getElementById('account-profiles-list');
         if (!list) return;
         list.innerHTML = '';
         accounts.forEach((acc, i) => {
-            const isActive = i === activeAccountIndex;
+            const isActive = (i === activeAccountIndex);
             const div = document.createElement('div');
-            div.style.cssText = `display:flex; align-items:center; gap:12px; padding:12px 14px; border-radius:12px; cursor:pointer; border:1px solid ${isActive ? 'rgba(139,92,246,0.6)' : 'rgba(255,255,255,0.06)'}; background:${isActive ? 'rgba(139,92,246,0.12)' : 'rgba(255,255,255,0.02)'}; transition:all 0.2s;`;
+            div.style.cssText = [
+                'display:flex', 'align-items:center', 'gap:12px',
+                'padding:12px 14px', 'border-radius:12px', 'cursor:pointer',
+                `border:1px solid ${isActive ? 'rgba(139,92,246,0.7)' : 'rgba(255,255,255,0.07)'}`,
+                `background:${isActive ? 'rgba(139,92,246,0.15)' : 'rgba(255,255,255,0.02)'}`,
+                'transition:all 0.2s'
+            ].join(';');
+
             div.innerHTML = `
-                <img src="https://ui-avatars.com/api/?name=${encodeURIComponent(acc.name)}&background=${acc.color}&color=fff" style="width:36px; height:36px; border-radius:50%; border:2px solid #${acc.color}40;">
-                <div style="flex:1;">
-                    <div style="font-weight:700; font-size:14px; color:${isActive ? '#c084fc' : '#f1f5f9'};">${acc.name}</div>
-                    <div style="font-size:11px; color:#64748b;">${acc.role}</div>
+                <img src="https://ui-avatars.com/api/?name=${encodeURIComponent(acc.name)}&background=${acc.color}&color=fff"
+                     style="width:38px;height:38px;border-radius:50%;border:2px solid #${acc.color};flex-shrink:0;">
+                <div style="flex:1;min-width:0;">
+                    <div style="font-weight:700;font-size:14px;color:${isActive ? '#c084fc' : '#f1f5f9'};white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${acc.name}</div>
+                    <div style="font-size:11px;color:#64748b;margin-top:2px;">${acc.role}</div>
                 </div>
-                ${isActive ? '<span style="font-size:11px; color:#c084fc; font-weight:700; background:rgba(139,92,246,0.15); padding:2px 8px; border-radius:6px;">ACTIVE</span>' : '<span style="font-size:11px; color:#475569; padding:2px 8px;">Switch →</span>'}
+                ${isActive
+                    ? '<span style="font-size:11px;color:#c084fc;font-weight:700;background:rgba(139,92,246,0.2);padding:3px 10px;border-radius:6px;white-space:nowrap;">✓ ACTIVE</span>'
+                    : '<span style="font-size:12px;color:#64748b;white-space:nowrap;">Switch →</span>'}
             `;
-            div.onclick = () => { applyAccount(i); closeAccountModal(); };
-            // Hover effect
-            div.onmouseenter = () => { if (!isActive) div.style.background = 'rgba(255,255,255,0.05)'; };
-            div.onmouseleave = () => { if (!isActive) div.style.background = 'rgba(255,255,255,0.02)'; };
+
+            if (!isActive) {
+                div.onmouseenter = () => { div.style.background = 'rgba(255,255,255,0.06)'; div.style.borderColor = 'rgba(255,255,255,0.15)'; };
+                div.onmouseleave = () => { div.style.background = 'rgba(255,255,255,0.02)'; div.style.borderColor = 'rgba(255,255,255,0.07)'; };
+            }
+            div.onclick = () => {
+                applyAccount(i, true);
+                window.closeAccountModal();
+            };
             list.appendChild(div);
         });
     }
 
+    // Expose to global scope immediately (HTML onclick needs these)
     window.openAccountModal = () => {
-        renderAccountModal();
+        renderAccountProfiles();
         const modal = document.getElementById('account-modal');
-        if (modal) { modal.style.display = 'flex'; }
+        if (modal) modal.style.display = 'flex';
     };
 
     window.closeAccountModal = () => {
@@ -1942,21 +1861,150 @@ document.addEventListener('DOMContentLoaded', () => {
         const nameInput = document.getElementById('new-account-name');
         const roleInput = document.getElementById('new-account-role');
         const name = nameInput ? nameInput.value.trim() : '';
-        const role = roleInput ? roleInput.value.trim() : '';
+        const role = roleInput ? roleInput.value.trim() : 'Team Member';
 
-        if (!name) { showToast('Please enter a full name.', 'warning'); return; }
-        const colors = ['8B5CF6', 'EF4444', 'F59E0B', '10B981', 'EC4899', '3B82F6'];
-        const color = colors[Math.floor(Math.random() * colors.length)];
-        accounts.push({ name, role: role || 'Team Member', color });
+        if (!name) { window.showToast('⚠️ Please enter a full name.', 'warning'); return; }
+
+        const palette = ['8B5CF6','EF4444','F59E0B','10B981','EC4899','3B82F6','F97316','14B8A6'];
+        const color   = palette[Math.floor(Math.random() * palette.length)];
+        accounts.push({ name, role, color });
         saveAccounts();
-        applyAccount(accounts.length - 1);
+        applyAccount(accounts.length - 1, true);
         if (nameInput) nameInput.value = '';
         if (roleInput) roleInput.value = '';
-        closeAccountModal();
+        window.closeAccountModal();
     };
 
-    // Apply saved account on load
-    applyAccount(activeAccountIndex);
+    // Apply active account silently on page load (no toast on first load)
+    applyAccount(activeAccountIndex, false);
+
+    // ── Search Functionality (Sidebar + Global Header) ──
+    const NAV_MAP = [
+        { keys: ['dashboard','overview','home','kpi'],             hash: '#dashboard' },
+        { keys: ['copilot','ai','chat','assistant','bot'],          fn: () => document.getElementById('ai-drawer').classList.add('open') },
+        { keys: ['production','line','output','press','spm'],      hash: '#production' },
+        { keys: ['maintenance','repair','work order','technician'], hash: '#maintenance' },
+        { keys: ['quality','defect','fpy','vision','cognex'],      hash: '#quality' },
+        { keys: ['inventory','stock','carbon','fiber','battery'],   hash: '#inventory' },
+        { keys: ['analytics','monte carlo','simulation','shift'],   hash: '#analytics' },
+        { keys: ['recommendations','recommendation','advice'],      hash: '#recommendations' },
+        { keys: ['alerts','alarm','warning','critical'],            hash: '#alerts' },
+        { keys: ['upload','data','import','dataset'],               hash: '#upload' },
+        { keys: ['reports','pdf','export','download'],              hash: '#reports' },
+        { keys: ['settings','account','profile','theme'],           hash: '#settings' }
+    ];
+
+    const QUESTION_WORDS = ['what','how','why','show','tell','find','help','is','are','give','check','status','error','risk','oee','alert','defect','fail','pressure','temperature'];
+
+    function executeSearch(query) {
+        if (!query || !query.trim()) return;
+        const q = query.toLowerCase().trim();
+
+        // Long queries or question-style → send to AI Copilot
+        const isQuestion = q.length > 12 || QUESTION_WORDS.some(w => q.split(/\s+/).includes(w));
+        if (isQuestion) {
+            document.getElementById('ai-drawer').classList.add('open');
+            if (elements.chatInput) {
+                elements.chatInput.value = query;
+                setTimeout(() => sendMessageToCopilot(), 200);
+            }
+            return;
+        }
+
+        // Short keyword → navigate to matching view
+        for (const item of NAV_MAP) {
+            if (item.keys.some(k => q.includes(k) || k.startsWith(q))) {
+                if (item.fn) {
+                    item.fn();
+                } else {
+                    window.location.hash = item.hash;
+                    handleRoute();
+                }
+                window.showToast(`📍 Navigated to: ${(item.hash || '#ai copilot').replace('#','').toUpperCase()}`, 'info');
+                return;
+            }
+        }
+        window.showToast(`🔍 No match for "${query}". Try: alerts, quality, production, maintenance…`, 'warning');
+    }
+
+    // ── Sidebar Search — filter nav links in real-time, Enter to navigate ──
+    const sidebarSearchEl = document.getElementById('sidebar-search-input');
+    if (sidebarSearchEl) {
+        sidebarSearchEl.addEventListener('input', () => {
+            const q = sidebarSearchEl.value.toLowerCase().trim();
+            // nav items are <a class="nav-item"> directly inside <div class="nav-section">
+            document.querySelectorAll('.sidebar-nav .nav-item').forEach(link => {
+                const text = link.textContent.toLowerCase();
+                link.style.display = (!q || text.includes(q)) ? '' : 'none';
+            });
+            // Show/hide section title if all children hidden
+            document.querySelectorAll('.sidebar-nav .nav-section').forEach(section => {
+                const hasVisible = [...section.querySelectorAll('.nav-item')].some(a => a.style.display !== 'none');
+                const title = section.querySelector('.nav-section-title');
+                if (title) title.style.display = hasVisible ? '' : 'none';
+            });
+        });
+
+        sidebarSearchEl.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                const val = sidebarSearchEl.value.trim();
+                if (val) {
+                    executeSearch(val);
+                    sidebarSearchEl.value = '';
+                    // Restore all nav items
+                    document.querySelectorAll('.sidebar-nav .nav-item').forEach(a => a.style.display = '');
+                    document.querySelectorAll('.sidebar-nav .nav-section-title').forEach(t => t.style.display = '');
+                }
+            }
+            if (e.key === 'Escape') {
+                sidebarSearchEl.value = '';
+                document.querySelectorAll('.sidebar-nav .nav-item').forEach(a => a.style.display = '');
+                document.querySelectorAll('.sidebar-nav .nav-section-title').forEach(t => t.style.display = '');
+            }
+        });
+    }
+
+    // ── Global Header Search ──
+    const globalSearchEl = document.getElementById('global-search');
+    if (globalSearchEl) {
+        globalSearchEl.addEventListener('input', () => {
+            // Subtle highlight matching nav items
+            const q = globalSearchEl.value.toLowerCase().trim();
+            document.querySelectorAll('.sidebar-nav .nav-item').forEach(link => {
+                const text = link.textContent.toLowerCase();
+                link.style.opacity = (!q || text.includes(q)) ? '1' : '0.3';
+            });
+        });
+        globalSearchEl.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                const val = globalSearchEl.value.trim();
+                if (val) {
+                    executeSearch(val);
+                    globalSearchEl.value = '';
+                    document.querySelectorAll('.sidebar-nav .nav-item').forEach(a => a.style.opacity = '1');
+                }
+            }
+            if (e.key === 'Escape') {
+                globalSearchEl.value = '';
+                document.querySelectorAll('.sidebar-nav .nav-item').forEach(a => a.style.opacity = '1');
+            }
+        });
+    }
+
+    // ── Keyboard Shortcuts ──
+    document.addEventListener('keydown', (e) => {
+        if (e.ctrlKey && e.key === '/') {
+            e.preventDefault();
+            if (sidebarSearchEl) sidebarSearchEl.focus();
+        }
+        if (e.ctrlKey && e.key === 'k') {
+            e.preventDefault();
+            if (globalSearchEl) globalSearchEl.focus();
+        }
+        if (e.key === 'Escape') {
+            window.closeAccountModal();
+        }
+    });
 
     // ── Initialization ──
     initTheme();
@@ -1974,3 +2022,4 @@ document.addEventListener('DOMContentLoaded', () => {
     runTelemetrySimulation();
     handleRoute();
 });
+
