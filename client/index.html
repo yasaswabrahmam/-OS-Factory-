@@ -323,9 +323,16 @@
                         <i data-lucide="moon" class="moon-icon"></i>
                     </button>
 
-                    <!-- User Profile Dropdown Widget -->
-                    <div class="profile-widget">
-                        <img src="https://ui-avatars.com/api/?name=Alexander+Vance&background=0D8ABC&color=fff" alt="Alexander Vance" class="profile-avatar">
+                    <!-- User Profile Dropdown Widget (opens account modal on click) -->
+                    <div class="profile-widget" onclick="openAccountModal()" style="cursor:pointer;" title="Click to switch account">
+                        <img src="" alt="User Avatar" class="profile-avatar" id="header-avatar"
+                             onerror="this.style.display='none'; document.getElementById('header-avatar-fallback').style.display='flex';">
+                        <div id="header-avatar-fallback"
+                             style="display:none; width:34px; height:34px; border-radius:50%;
+                                    background:linear-gradient(135deg,#8b5cf6,#06b6d4);
+                                    align-items:center; justify-content:center;
+                                    font-size:12px; font-weight:700; color:#fff;
+                                    font-family:'Outfit',sans-serif; flex-shrink:0;">AV</div>
                     </div>
                 </div>
             </header>

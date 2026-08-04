@@ -376,20 +376,35 @@ class FactoryOSRequestHandler(SimpleHTTPRequestHandler):
 
             # ── LIVE ML API ENDPOINTS (auto-updated by background engine) ──
             elif path == '/api/live/state':
-                # Full live plant state — call this every 5s from frontend
+                plant = query.get('plant', ['detroit'])[0].lower()
+                offsets = {
+                    'detroit':  {'oee': 0.0,  'speed': 0.0, 'pressure': 0.0, 'weather': {'temp': '28°C', 'desc': 'Mostly cloudy'}},
+                    'austin':   {'oee': 1.8,  'speed': 4.0, 'pressure': -5.0, 'weather': {'temp': '34°C', 'desc': 'Clear & sunny'}},
+                    'berlin':   {'oee': -0.6, 'speed': -1.0, 'pressure': 15.0, 'weather': {'temp': '18°C', 'desc': 'Light rain'}},
+                    'shanghai': {'oee': 2.7,  'speed': 6.0, 'pressure': -12.0, 'weather': {'temp': '26°C', 'desc': 'Humid & clear'}}
+                }
+                off = offsets.get(plant, offsets['detroit'])
+
+                base_oee  = min(100.0, max(60.0, LIVE_STATE["oee"] + off['oee']))
+                base_avail = min(100.0, max(60.0, LIVE_STATE["availability"] + off['oee']*0.3))
+                base_perf  = min(100.0, max(60.0, LIVE_STATE["performance"] + off['oee']*0.4))
+                base_yield = min(100.0, max(60.0, LIVE_STATE["yield_rate"] + off['oee']*0.2))
+
                 self._send_json({
-                    "oee": LIVE_STATE["oee"],
-                    "availability": LIVE_STATE["availability"],
-                    "performance": LIVE_STATE["performance"],
-                    "yield": LIVE_STATE["yield_rate"],
-                    "speed": round(LIVE_STATE["speed"], 2),
-                    "pressure": round(LIVE_STATE["pressure"], 1),
+                    "plant": plant,
+                    "oee": round(base_oee, 1),
+                    "availability": round(base_avail, 1),
+                    "performance": round(base_perf, 1),
+                    "yield": round(base_yield, 1),
+                    "speed": round(max(6.0, LIVE_STATE["speed"] + off['speed']), 1),
+                    "pressure": round(max(150.0, LIVE_STATE["pressure"] + off['pressure']), 1),
                     "temperature": round(LIVE_STATE["temperature"], 1),
                     "vibration": round(LIVE_STATE["vibration"], 3),
                     "failureRisk": LIVE_STATE["failure_risk"],
                     "rul": LIVE_STATE["rul"],
                     "zScore": LIVE_STATE["z_score"],
                     "status": LIVE_STATE["status"],
+                    "weather": off['weather'],
                     "lastUpdated": LIVE_STATE["last_updated"]
                 })
 

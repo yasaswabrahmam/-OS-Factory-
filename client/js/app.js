@@ -467,10 +467,19 @@ document.addEventListener('DOMContentLoaded', () => {
         // Poll /api/live/state every 5s — real Python ML backend data
         async function pollLiveState() {
             try {
-                const res = await fetch('/api/live/state');
+                const site = state.activeSite || 'detroit';
+                const res = await fetch(`/api/live/state?plant=${site}`);
                 if (!res.ok) throw new Error('API offline');
                 const json = await res.json();
                 const d = json.data || json;
+
+                // Update weather widget if provided by live API
+                if (d.weather) {
+                    const weatherTemp = document.getElementById('weather-temp');
+                    const weatherDesc = document.getElementById('weather-desc');
+                    if (weatherTemp) weatherTemp.textContent = d.weather.temp;
+                    if (weatherDesc) weatherDesc.textContent = d.weather.desc;
+                }
 
                 // Update KPI metrics from live ML engine
                 if (d.oee !== undefined) {
@@ -1887,12 +1896,21 @@ document.addEventListener('DOMContentLoaded', () => {
             fallbackEl.style.background = `#${acc.color}`;
         }
 
+        const hdrFallback = document.getElementById('header-avatar-fallback');
+        if (hdrFallback) {
+            hdrFallback.textContent = initials;
+            hdrFallback.style.background = `#${acc.color}`;
+        }
+
         const avatarUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(acc.name)}&background=${acc.color}&color=fff`;
         if (avatarEl) {
             avatarEl.style.display = '';
             avatarEl.src = avatarUrl;
         }
-        if (hdrAvatar) hdrAvatar.src = avatarUrl;
+        if (hdrAvatar) {
+            hdrAvatar.style.display = '';
+            hdrAvatar.src = avatarUrl;
+        }
 
         if (showNotification) {
             window.showToast(`✅ Switched to: ${acc.name} (${acc.role})`, 'success');
@@ -1974,18 +1992,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // ── Search Functionality (Sidebar + Global Header) ──
     const NAV_MAP = [
-        { keys: ['dashboard','overview','home','kpi'],             hash: '#dashboard' },
-        { keys: ['copilot','ai','chat','assistant','bot'],          fn: () => document.getElementById('ai-drawer').classList.add('open') },
-        { keys: ['production','line','output','press','spm'],      hash: '#production' },
-        { keys: ['maintenance','repair','work order','technician'], hash: '#maintenance' },
-        { keys: ['quality','defect','fpy','vision','cognex'],      hash: '#quality' },
-        { keys: ['inventory','stock','carbon','fiber','battery'],   hash: '#inventory' },
-        { keys: ['analytics','monte carlo','simulation','shift'],   hash: '#analytics' },
-        { keys: ['recommendations','recommendation','advice'],      hash: '#recommendations' },
-        { keys: ['alerts','alarm','warning','critical'],            hash: '#alerts' },
-        { keys: ['upload','data','import','dataset'],               hash: '#upload' },
-        { keys: ['reports','pdf','export','download'],              hash: '#reports' },
-        { keys: ['settings','account','profile','theme'],           hash: '#settings' }
+        { name: 'Dashboard Overview',       keys: ['dashboard','dash','overview','home','kpi','main'],                hash: '#dashboard' },
+        { name: 'AI Copilot / Assistant',  keys: ['copilot','ai','chat','assistant','bot','com','cmd','command','ask','tutor','help'], fn: () => document.getElementById('ai-drawer').classList.add('open') },
+        { name: 'Production Lines',         keys: ['production','prod','line','output','press','spm','machine','factory'], hash: '#production' },
+        { name: 'Maintenance & Work Orders',keys: ['maintenance','maint','repair','work order','wo','technician','fix'],  hash: '#maintenance' },
+        { name: 'Quality Control (Vision)', keys: ['quality','qual','defect','fpy','vision','cognex','inspection'],       hash: '#quality' },
+        { name: 'Inventory & Materials',    keys: ['inventory','inv','stock','carbon','fiber','battery','parts'],           hash: '#inventory' },
+        { name: 'Analytics & Monte Carlo',  keys: ['analytics','analy','monte carlo','simulation','shift','chart'],         hash: '#analytics' },
+        { name: 'AI Recommendations',       keys: ['recommendations','rec','suggestion','advice','action'],                 hash: '#recommendations' },
+        { name: 'Alerts & System Alarms',   keys: ['alerts','alert','alarm','warning','critical','notify','logs'],          hash: '#alerts' },
+        { name: 'Dataset Upload',           keys: ['upload','data','import','dataset','file','csv'],                        hash: '#upload' },
+        { name: 'Reports & Downloads',      keys: ['reports','report','pdf','export','download','doc'],                     hash: '#reports' },
+        { name: 'Settings & Profiles',      keys: ['settings','setting','account','profile','theme','config','user'],        hash: '#settings' }
     ];
 
     const QUESTION_WORDS = ['what','how','why','show','tell','find','help','is','are','give','check','status','error','risk','oee','alert','defect','fail','pressure','temperature'];
@@ -2005,20 +2023,26 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        // Short keyword → navigate to matching view
+        // Search keyword matching
         for (const item of NAV_MAP) {
-            if (item.keys.some(k => q.includes(k) || k.startsWith(q))) {
+            const matched = item.keys.some(k => k === q || k.startsWith(q) || q.startsWith(k) || k.includes(q) || q.includes(k));
+            if (matched) {
                 if (item.fn) {
                     item.fn();
                 } else {
                     window.location.hash = item.hash;
                     handleRoute();
                 }
-                window.showToast(`📍 Navigated to: ${(item.hash || '#ai copilot').replace('#','').toUpperCase()}`, 'info');
+                window.showToast(`📍 Navigated to: ${item.name}`, 'info');
                 return;
             }
         }
-        window.showToast(`🔍 No match for "${query}". Try: alerts, quality, production, maintenance…`, 'warning');
+        window.showToast(`🔍 No direct match for "${query}". Opening AI Copilot…`, 'info');
+        document.getElementById('ai-drawer').classList.add('open');
+        if (elements.chatInput) {
+            elements.chatInput.value = query;
+            setTimeout(() => sendMessageToCopilot(), 200);
+        }
     }
 
     // ── Sidebar Search — filter nav links in real-time, Enter to navigate ──
