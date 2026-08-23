@@ -125,19 +125,13 @@
                      onclick="openProfileMenu()"
                      style="cursor:pointer; user-select:none;"
                      title="Click profile menu (Settings, Add Account, Log Out)">
-                    <img src=""
-                         alt="User Avatar"
-                         class="user-avatar-img"
-                         id="sidebar-avatar"
-                         onerror="this.style.display='none'; document.getElementById('sidebar-avatar-fallback').style.display='flex';">
-                    <!-- Local SVG initials fallback (works without internet) -->
+                    <!-- Single avatar circle: initials shown by default, replaced by image once JS loads -->
                     <div id="sidebar-avatar-fallback"
-                         style="display:none; width:36px; height:36px; border-radius:50%;
+                         style="display:flex; width:36px; height:36px; border-radius:50%;
                                 background:linear-gradient(135deg,#8b5cf6,#06b6d4);
                                 align-items:center; justify-content:center;
                                 font-size:13px; font-weight:700; color:#fff;
-                                font-family:'Outfit',sans-serif; flex-shrink:0;"
-                         id="sidebar-avatar-text">AV</div>
+                                font-family:'Outfit',sans-serif; flex-shrink:0;">AV</div>
                     <div class="user-meta">
                         <span class="user-name" id="sidebar-user-name">Alexander Vance</span>
                         <span class="user-role" id="sidebar-user-role">Plant Manager</span>
@@ -267,10 +261,8 @@
 
                     <!-- User Profile Dropdown Widget (opens profile menu on click) -->
                     <div class="profile-widget" onclick="openProfileMenu()" style="cursor:pointer;" title="Click profile menu (Settings, Add Account, Log Out)">
-                        <img src="" alt="User Avatar" class="profile-avatar" id="header-avatar"
-                             onerror="this.style.display='none'; document.getElementById('header-avatar-fallback').style.display='flex';">
                         <div id="header-avatar-fallback"
-                             style="display:none; width:34px; height:34px; border-radius:50%;
+                             style="display:flex; width:34px; height:34px; border-radius:50%;
                                     background:linear-gradient(135deg,#8b5cf6,#06b6d4);
                                     align-items:center; justify-content:center;
                                     font-size:12px; font-weight:700; color:#fff;

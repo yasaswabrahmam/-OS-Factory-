@@ -1942,37 +1942,29 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const nameEl        = document.getElementById('sidebar-user-name');
         const roleEl        = document.getElementById('sidebar-user-role');
-        const avatarEl      = document.getElementById('sidebar-avatar');
         const fallbackEl    = document.getElementById('sidebar-avatar-fallback');
-        const hdrAvatar     = document.querySelector('.profile-avatar');
+        const hdrFallback   = document.getElementById('header-avatar-fallback');
 
         if (nameEl) nameEl.textContent = acc.name;
         if (roleEl) roleEl.textContent = acc.role;
 
-        // Initials calculation
+        // Compute initials
         const parts = acc.name.trim().split(/[\s-]+/);
         let initials = parts.length >= 2 ? (parts[0][0] + parts[1][0]) : acc.name.slice(0, 2);
         initials = initials.toUpperCase();
 
+        // Update sidebar avatar circle (initials + color)
         if (fallbackEl) {
             fallbackEl.textContent = initials;
             fallbackEl.style.background = `#${acc.color}`;
+            fallbackEl.style.display = 'flex';
         }
 
-        const hdrFallback = document.getElementById('header-avatar-fallback');
+        // Update header avatar circle
         if (hdrFallback) {
             hdrFallback.textContent = initials;
             hdrFallback.style.background = `#${acc.color}`;
-        }
-
-        const avatarUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(acc.name)}&background=${acc.color}&color=fff`;
-        if (avatarEl) {
-            avatarEl.style.display = '';
-            avatarEl.src = avatarUrl;
-        }
-        if (hdrAvatar) {
-            hdrAvatar.style.display = '';
-            hdrAvatar.src = avatarUrl;
+            hdrFallback.style.display = 'flex';
         }
 
         if (showNotification) {
