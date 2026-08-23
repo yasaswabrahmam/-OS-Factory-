@@ -1,11 +1,18 @@
-# Factory OS — Decision Intelligence
+# 🏭 Factory OS — Decision Intelligence Platform
 
 > **CIH Hackathon 2026** | Full-Stack Industrial IoT Dashboard with AI/ML Predictive Analytics
 
-[![Node.js](https://img.shields.io/badge/Node.js-20.x-green?logo=node.js)](https://nodejs.org)
-[![Express](https://img.shields.io/badge/Express-4.x-black?logo=express)](https://expressjs.com)
-[![Vanilla JS](https://img.shields.io/badge/Frontend-Vanilla%20JS-yellow?logo=javascript)](https://developer.mozilla.org/en-US/docs/Web/JavaScript)
-[![MIT License](https://img.shields.io/badge/License-MIT-blue)](LICENSE)
+[![Live Demo](https://img.shields.io/badge/🌐%20Live%20Demo-candid--kelpie--ac1c3a.netlify.app-brightgreen?style=for-the-badge)](https://candid-kelpie-ac1c3a.netlify.app/)
+[![GitHub](https://img.shields.io/badge/GitHub-yasaswabrahmam%2F--OS--Factory---%20-181717?style=for-the-badge&logo=github)](https://github.com/yasaswabrahmam/-OS-Factory-)
+
+---
+
+## 🌐 Live Deployment
+
+> **👉 [https://candid-kelpie-ac1c3a.netlify.app/](https://candid-kelpie-ac1c3a.netlify.app/)**
+
+Deployed on **Netlify** — fully static, zero-dependency cloud hosting.  
+No backend required — the embedded client-side ML & AI Copilot engine runs 100% in the browser.
 
 ---
 
@@ -19,18 +26,16 @@
 - **Six Sigma Quality Analytics** — DPMO, First-Pass Yield, Cognex Vision AI
 - **12 Operational Views** — Overview, Production, Maintenance, Quality, Inventory, Analytics, Recommendations, Alerts, Data Upload, Reports, Knowledge Base, Settings
 - **Fully Responsive** — Desktop (4-col), Tablet (2-col), Mobile (hamburger nav)
+- **Profile System** — Multi-account switcher with Settings, Add Account & Log Out
+- **AI Copilot** — Conversational plant intelligence assistant with real-time telemetry context
 
 ---
 
-## Quick Start
+## Quick Start (Local)
 
 ```bash
-# Install dependencies
-cd server
-npm install
-
-# Start the backend API server (port 5000)
-node server.js
+# Run the Python backend server (port 5000)
+python server.py
 ```
 
 Then open your browser at **`http://localhost:5000`**
@@ -46,32 +51,14 @@ factory-os/
 │   │   ├── variables.css      # Design tokens (colors, spacing, typography)
 │   │   └── main.css           # Full UI + 4-breakpoint responsive system
 │   ├── js/
-│   │   ├── app.js             # Core dashboard controller (routing, charts, ML)
+│   │   ├── app.js             # Core dashboard controller (routing, charts, ML, Auth)
 │   │   └── vendor/
 │   │       └── lucide.min.js  # Icon library
+│   ├── _redirects             # Netlify SPA routing rule
 │   └── index.html             # Main SPA entry point (12 views)
 │
-├── server/                    # Node.js + Express Backend
-│   ├── server.js              # App entry, middleware, rate limiting
-│   ├── package.json
-│   └── domains/
-│       ├── ai/                # AI Copilot chatbot engine
-│       │   ├── ai.controller.js
-│       │   ├── ai.gateway.js
-│       │   ├── ai.routes.js
-│       │   ├── ai.service.js
-│       │   └── engines/
-│       │       └── tutor.engine.js
-│       ├── analytics/         # Shift analytics & Monte Carlo simulation
-│       │   ├── analytics.controller.js
-│       │   └── analytics.service.js
-│       └── telemetry/         # Core IoT ML engine
-│           ├── telemetry.controller.js   # GET/POST /api/telemetry/predict
-│           ├── telemetry.routes.js       # Express routes
-│           └── telemetry.service.js      # Z-Score, ARIMA, Sigmoid, RUL
-│
-├── Factory_OS_Project_Review.pdf  # 3-page technical review document
-├── .gitignore
+├── server.py                  # Pure Python 3 backend + ML engine + REST API
+├── netlify.toml               # Netlify build configuration
 └── README.md
 ```
 
@@ -122,31 +109,41 @@ factory-os/
 | `GET` | `/api/telemetry/alerts` | Real-time alert feed |
 | `POST` | `/api/ai/tutor/chat` | AI Copilot chatbot |
 | `GET` | `/api/analytics/shift` | Shift performance matrix |
+| `GET` | `/api/live/state?plant=detroit` | Live ML engine state |
+| `GET` | `/api/live/anomalies` | Live anomaly event queue |
 
 ---
 
 ## Deployment
 
-### Netlify (Static Frontend)
-1. Go to [app.netlify.com/drop](https://app.netlify.com/drop)
-2. Drag the `client/` folder onto the page
-3. Get your live HTTPS URL instantly
+### ☁️ Netlify (Live)
+**🌐 [https://candid-kelpie-ac1c3a.netlify.app/](https://candid-kelpie-ac1c3a.netlify.app/)**
 
-### Backend
-Deploy the `server/` folder to any Node.js host (Railway, Render, Heroku).
+The `netlify.toml` and `client/_redirects` are pre-configured.  
+To redeploy: import `yasaswabrahmam/-OS-Factory-` on [app.netlify.com](https://app.netlify.com).
+
+### 💻 Local (Python Server)
+```bash
+python server.py
+# Open http://localhost:5000
+```
 
 ---
 
 ## Tech Stack
 
 - **Frontend**: HTML5, Vanilla CSS3, JavaScript ES6+, Chart.js, Lucide Icons
-- **Backend**: Node.js 20, Express.js, express-rate-limit, morgan
-- **ML Engine**: Custom mathematical models (no heavy ML frameworks needed)
+- **Backend**: Pure Python 3 (no frameworks), custom HTTP server
+- **ML Engine**: Custom mathematical models (Z-Score, Sigmoid, ARIMA, RUL, Monte Carlo)
 - **Design**: Glassmorphism, CSS Grid/Flexbox, CSS Custom Properties
-- **Fonts**: Inter (Google Fonts)
+- **Fonts**: Outfit, Inter (Google Fonts)
+- **Deployment**: Netlify (static) + Python edge server
 
 ---
 
 ## License
 
-MIT © 2026 Yasaswabrahman Muppalla | CIH Hackathon
+MIT © 2026 Yasaswabrahman Muppalla | CIH Hackathon  
+
+🌐 **Live**: [https://candid-kelpie-ac1c3a.netlify.app/](https://candid-kelpie-ac1c3a.netlify.app/)  
+📦 **GitHub**: [https://github.com/yasaswabrahmam/-OS-Factory-](https://github.com/yasaswabrahmam/-OS-Factory-)
