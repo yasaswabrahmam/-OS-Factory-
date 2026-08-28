@@ -566,9 +566,13 @@ document.addEventListener('DOMContentLoaded', () => {
                         mainTrendChart.update('none');
                     }
 
-                    // Show anomaly toast if status changed to ANOMALY
+                    // Show anomaly toast if status changed to ANOMALY (max once per 60s)
                     if (d.status === 'ANOMALY' && d.failureRisk > 65) {
-                        window.showToast(`🚨 ML ALERT: Z=${d.zScore} — Failure risk ${d.failureRisk}% detected!`, 'danger');
+                        const now = Date.now();
+                        if (!window._lastAnomalyToast || now - window._lastAnomalyToast > 60000) {
+                            window._lastAnomalyToast = now;
+                            window.showToast(`🚨 ML ALERT: Z=${d.zScore} — Failure risk ${d.failureRisk}% detected!`, 'danger');
+                        }
                     }
                 }
             } catch (e) {
@@ -1989,8 +1993,14 @@ document.addEventListener('DOMContentLoaded', () => {
             ].join(';');
 
             div.innerHTML = `
-                <img src="https://ui-avatars.com/api/?name=${encodeURIComponent(acc.name)}&background=${acc.color}&color=fff"
-                     style="width:38px;height:38px;border-radius:50%;border:2px solid #${acc.color};flex-shrink:0;">
+                <div style="width:38px;height:38px;border-radius:50%;background:#${acc.color};color:#fff;
+                            display:flex;align-items:center;justify-content:center;
+                            font-size:14px;font-weight:700;flex-shrink:0;font-family:'Outfit',sans-serif;
+                            border:2px solid #${acc.color};">
+                    ${(acc.name.trim().split(/[\s-]+/).length >= 2
+                        ? acc.name.trim().split(/[\s-]+/)[0][0] + acc.name.trim().split(/[\s-]+/)[1][0]
+                        : acc.name.slice(0,2)).toUpperCase()}
+                </div>
                 <div style="flex:1;min-width:0;">
                     <div style="font-weight:700;font-size:14px;color:${isActive ? '#c084fc' : '#f1f5f9'};white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${acc.name}</div>
                     <div style="font-size:11px;color:#64748b;margin-top:2px;">${acc.role}</div>
@@ -2090,6 +2100,20 @@ document.addEventListener('DOMContentLoaded', () => {
 
     window.handleLoginSubmit = (e) => {
         if (e) e.preventDefault();
+        const emailInput = document.getElementById('login-email-input');
+        const passInput  = document.getElementById('login-password-input');
+        const email = emailInput ? emailInput.value.trim() : '';
+        const pass  = passInput  ? passInput.value.trim()  : '';
+
+        if (!email) {
+            window.showToast('⚠️ Please enter your email or username.', 'warning');
+            return;
+        }
+        if (!pass) {
+            window.showToast('⚠️ Please enter your password.', 'warning');
+            return;
+        }
+
         const screen = document.getElementById('login-screen');
         localStorage.setItem('fos_logged_in', 'true');
         if (screen) screen.style.display = 'none';

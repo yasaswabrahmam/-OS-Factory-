@@ -155,7 +155,7 @@ def ml_background_engine():
                 })
 
         except Exception as e:
-            pass
+            print(f"[ML Engine Error] {e}", flush=True)
         time.sleep(5)  # Update every 5 seconds
 
 # Start background ML engine in daemon thread
