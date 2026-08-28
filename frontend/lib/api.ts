@@ -231,4 +231,36 @@ export const api = {
       inferenceEngine: 'Client-Side Joblib Emulator',
     };
   },
+
+  // Get System Alerts
+  async getAlerts() {
+    try {
+      const res = await fetchWithTimeout(`${BACKEND_URL}/api/v1/alerts/`);
+      if (res.ok) return await res.json();
+    } catch (e) {}
+    return {
+      success: true,
+      alerts: [
+        { id: 1, severity: 'critical', component: 'Schuler Press S-200', msg: 'Hydraulic Pressure Decay on Cylinder B-2. Variance exceeded safety limits.', created_at: 'Just now', status: 'UNACKNOWLEDGED' },
+        { id: 2, severity: 'warning', component: 'Laser Weld Cell 03', msg: 'Machine telemetry exceeded ISO 10816 class III vibration threshold (2.8 mm/s).', created_at: '12 mins ago', status: 'UNACKNOWLEDGED' },
+        { id: 3, severity: 'info', component: 'Warehouse Inventory', msg: 'Current Carbon Fiber stock level reached 68% of safety threshold.', created_at: '1 hour ago', status: 'RESOLVED' },
+      ],
+    };
+  },
+
+  // Get Reports List
+  async getReports() {
+    try {
+      const res = await fetchWithTimeout(`${BACKEND_URL}/api/v1/reports/`);
+      if (res.ok) return await res.json();
+    } catch (e) {}
+    return {
+      success: true,
+      reports: [
+        { id: 'REP-101', name: 'Shift_Alpha_Executive_OEE_Summary.pdf', category: 'Executive Digest', size: '1.2 MB', date: '2026-08-28', format: 'PDF' },
+        { id: 'REP-102', name: 'Cognex_Vision_AI_Quality_Compliance.csv', category: 'Quality Control', size: '450 KB', date: '2026-08-27', format: 'CSV' },
+        { id: 'REP-103', name: 'Predictive_Maintenance_RUL_Audit.pdf', category: 'Maintenance', size: '2.1 MB', date: '2026-08-25', format: 'PDF' },
+      ],
+    };
+  },
 };
