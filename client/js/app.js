@@ -302,6 +302,12 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function initCharts() {
+        if (mainTrendChart) { mainTrendChart.destroy(); mainTrendChart = null; }
+        if (paretoChart) { paretoChart.destroy(); paretoChart = null; }
+        Object.keys(sparklineCharts).forEach(id => {
+            if (sparklineCharts[id]) { sparklineCharts[id].destroy(); delete sparklineCharts[id]; }
+        });
+
         const colors = getChartThemeColors();
 
         // 1. OEE 24hr trend chart
@@ -676,7 +682,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 <td>${alert.msg}</td>
                 <td>${alert.time}</td>
                 <td>
-                    <button class="btn btn-outline btn-xs" onclick="alert('Diagnostic logs generated for ${alert.component}')">Diagnose</button>
+                    <button class="btn btn-outline btn-xs" onclick="window.showToast('Diagnostic logs generated for ${alert.component}', 'info')">Diagnose</button>
                 </td>
             `;
             elements.alertsTableBody.appendChild(tr);
@@ -930,7 +936,7 @@ document.addEventListener('DOMContentLoaded', () => {
                             <span class="mini-metric-value" style="font-size: var(--text-sm);">${machine.installDate}</span>
                         </div>
                     </div>
-                    <button class="btn btn-outline" style="width:100%; margin-top: auto;" onclick="alert('Initiating deep diagnostic test sequence for ${machine.name}. Connection link: OK.')">
+                    <button class="btn btn-outline" style="width:100%; margin-top: auto;" onclick="window.showToast('Initiating deep diagnostic test sequence for ${machine.name}. Connection link: OK.', 'info')">
                         <i data-lucide="wrench" style="width:14px; height:14px; margin-right:4px;"></i>
                         <span>Diagnose Machine</span>
                     </button>
@@ -939,8 +945,36 @@ document.addEventListener('DOMContentLoaded', () => {
             });
             lucide.createIcons();
         } catch (e) {
-            console.error('Failed to render production assets:', e);
-            elements.productionLinesGrid.innerHTML = '<div style="grid-column: span 3; text-align: center; color: var(--danger);">Failed to load assets.</div>';
+            console.warn('Backend asset API unreachable, rendering offline fallback assets:', e);
+            elements.productionLinesGrid.innerHTML = '';
+            const fallbackAssets = [
+                { name: 'Schuler Hydraulic Press S-200', line: 'Main Press Line A', type: 'Press', manufacturer: 'Schuler Group', serial: 'SCH-8849-A', installDate: '2022-04-15' },
+                { name: 'Kuka Transfer Robot Arm T-1', line: 'Robotic Body Welding', type: 'Robotics', manufacturer: 'KUKA', serial: 'KUK-9932-B', installDate: '2023-01-10' },
+                { name: 'Fanuc Arc Welder W-12', line: 'Robotic Body Welding', type: 'Welder', manufacturer: 'FANUC', serial: 'FAN-7721-C', installDate: '2021-09-20' },
+                { name: 'Durr Convection Oven O-4', line: 'Paint Bake Oven B', type: 'Oven', manufacturer: 'Dürr AG', serial: 'DUR-3310-E', installDate: '2020-11-05' },
+                { name: 'Cognex Quality Camera Q-1', line: 'Final Assembly Cell', type: 'Scanner', manufacturer: 'Cognex', serial: 'COG-4431-D', installDate: '2023-06-18' }
+            ];
+            fallbackAssets.forEach(machine => {
+                const card = document.createElement('div');
+                card.className = 'bento-card prod-line-card glow-purple';
+                card.innerHTML = `
+                    <div class="prod-header">
+                        <span class="prod-name" style="font-size: var(--text-base); font-weight: var(--fw-bold);">${machine.name}</span>
+                        <span class="prod-status-tag active" style="background: rgba(16, 185, 129, 0.08); color: var(--success); border: 1px solid rgba(16, 185, 129, 0.15); font-size: 10px; font-weight: var(--fw-bold); padding: 2px 8px; border-radius: var(--radius-full);">ONLINE</span>
+                    </div>
+                    <div style="font-size: 10px; color: var(--text-muted); margin-bottom: var(--space-2);">${machine.line}</div>
+                    <div class="prod-metrics-grid" style="margin-bottom: var(--space-4);">
+                        <div class="prod-mini-metric"><span class="mini-metric-label">TYPE</span><span class="mini-metric-value">${machine.type}</span></div>
+                        <div class="prod-mini-metric"><span class="mini-metric-label">MANUFACTURER</span><span class="mini-metric-value">${machine.manufacturer}</span></div>
+                        <div class="prod-mini-metric"><span class="mini-metric-label">SERIAL</span><span class="mini-metric-value">${machine.serial}</span></div>
+                    </div>
+                    <button class="btn btn-outline" style="width:100%; margin-top: auto;" onclick="window.showToast('Initiating deep diagnostic test sequence for ${machine.name}. Connection link: OK.', 'info')">
+                        <i data-lucide="wrench" style="width:14px; height:14px; margin-right:4px;"></i><span>Diagnose Machine</span>
+                    </button>
+                `;
+                elements.productionLinesGrid.appendChild(card);
+            });
+            if (window.lucide && window.lucide.createIcons) window.lucide.createIcons();
         }
     }
 
@@ -1074,14 +1108,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 state.productionLines[2].activeAlerts += 1;
                 renderAlertsDropdown();
                 renderAlertsTable();
-                alert('CRITICAL EVENT SIMULATED: Paint shop seal leak alert broadcasted to dashboard.');
+                window.showToast('CRITICAL EVENT SIMULATED: Paint shop seal leak alert broadcasted to dashboard.', 'danger');
             } else if (action === 'sim-speed') {
                 if (elements.speedSlider) elements.speedSlider.value = 12;
                 if (elements.pressureSlider) elements.pressureSlider.value = 210;
                 updateMLSimulation();
                 state.telemetry.oee = Math.min(100, state.telemetry.oee + 5.0);
                 elements.valOee.textContent = `${state.telemetry.oee.toFixed(1)}%`;
-                alert('SPEED OPTIMIZATION LOADED: Telemetry speed output throttled. Current OEE boosted.');
+                window.showToast('SPEED OPTIMIZATION LOADED: Telemetry speed output throttled. Current OEE boosted.', 'success');
             } else if (action === 'sim-reset') {
                 state.alerts = [];
                 state.productionLines.forEach(l => l.activeAlerts = 0);
@@ -1090,7 +1124,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 updateMLSimulation();
                 renderAlertsDropdown();
                 renderAlertsTable();
-                alert('ALERT REGISTRY FLUSHED: All active warnings cleared.');
+                window.showToast('ALERT REGISTRY FLUSHED: All active warnings cleared.', 'info');
             }
         });
     });
@@ -1311,7 +1345,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     consoleEl.insertAdjacentHTML('beforeend', `<div class="terminal-line" style="color: var(--success); font-weight: bold;">[${time}] SYSTEM: Optimization locked. Speed: 13 SPM, Pressure: 212 Bar. OEE restored.</div>`);
                     consoleEl.scrollTop = consoleEl.scrollHeight;
                 }
-                alert('AI OPTIMIZER COMPLETED: Heuristic models stabilized Schuler Press variables at Speed: 13 SPM, Pressure: 212 Bar. Anomaly resolved, OEE forecasted to rise by 4.2%!');
+                window.showToast('AI OPTIMIZER COMPLETED: Heuristic models stabilized Schuler Press variables at Speed: 13 SPM, Pressure: 212 Bar. Anomaly resolved, OEE forecasted to rise by 4.2%!', 'success');
                 return;
             }
 
@@ -1362,7 +1396,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     </span>
                 </td>
                 <td>
-                    <button class="btn btn-outline btn-xs" onclick="alert('Viewing SAP PM logs for Work Order ${wo.id}')">View ERP</button>
+                    <button class="btn btn-outline btn-xs" onclick="window.showToast('Viewing SAP PM logs for Work Order ${wo.id}', 'info')">View ERP</button>
                 </td>
             `;
             body.appendChild(tr);
@@ -1396,7 +1430,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 countEl.textContent = count + 1;
             }
 
-            alert(`ERP SUCCESS: New Work Order successfully created in SAP PM database (ID: ${id})`);
+            window.showToast(`ERP SUCCESS: New Work Order successfully created in SAP PM database (ID: ${id})`, 'success');
         });
     }
 
@@ -1418,7 +1452,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     badge.className = 'badge badge-info';
                     badge.textContent = '5 Ordered (PR Synced)';
                 }
-                alert(`ERP TRANSACTION COMPLETE: Purchase Requisition created in SAP MM Module. ID: ${prId}. Spare parts dispatched for delivery.`);
+                window.showToast(`ERP TRANSACTION COMPLETE: Purchase Requisition created in SAP MM Module. ID: ${prId}. Spare parts dispatched for delivery.`, 'success');
             }, 1200);
         });
     }
@@ -1435,7 +1469,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 const prId = `PR-${Math.floor(10000 + Math.random() * 90000)}-SAP`;
                 btnProcureCF.textContent = 'SAP Requisition Synced';
                 logCF.innerHTML = `<span style="color: var(--success); font-weight:bold;">Requisition Synced! PO ID: ${prId}</span>`;
-                alert(`ERP TRANSACTION COMPLETE: Purchase Requisition created in SAP MM Module. ID: ${prId}. Refill rolls dispatched.`);
+                window.showToast(`ERP TRANSACTION COMPLETE: Purchase Requisition created in SAP MM Module. ID: ${prId}. Refill rolls dispatched.`, 'success');
             }, 1200);
         });
     }
@@ -1503,7 +1537,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const selectedCat = categories[Math.floor(Math.random() * categories.length)];
 
             if (state.defects.some(d => d.id === 'DF-ACTIVE')) {
-                alert('Active defect hold already engaged. Release the quarantine hold first.');
+                window.showToast('Active defect hold already engaged. Release the quarantine hold first.', 'warning');
                 return;
             }
 
@@ -1541,7 +1575,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 dpmoEl.textContent = '240';
             }
 
-            alert(`AI VISION CRITICAL ALARM: Cognex Vision AI scanner detected ${selectedCat} on ${selectedPart}. Automated quarantine locks engaged, shift supervisors notified.`);
+            window.showToast(`AI VISION CRITICAL ALARM: Cognex Vision AI scanner detected ${selectedCat} on ${selectedPart}. Automated quarantine locks engaged, shift supervisors notified.`, 'danger');
         });
     }
 
@@ -1566,7 +1600,7 @@ document.addEventListener('DOMContentLoaded', () => {
             consoleEl.insertAdjacentHTML('beforeend', `<div class="terminal-line" style="color: var(--success); font-weight:bold;">[${time}] SYSTEM: Hold cleared. Line production resume signal broadcasted.</div>`);
         }
 
-        alert('QUALITY HOLD RELEASED: Quarantine clear signals dispatched to PLC line control gateways. AI scanner restarted.');
+        window.showToast('QUALITY HOLD RELEASED: Quarantine clear signals dispatched to PLC line control gateways. AI scanner restarted.', 'success');
     };
 
     // ── Inventory Materials View Renderer ──
@@ -1702,7 +1736,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     btnRunMonteCarlo.innerHTML = `<i data-lucide="play" style="width:14px; height:14px; margin-right:4px; display:inline-block;"></i><span>Run 1,000 Iteration Risk Simulation</span>`;
                     lucide.createIcons();
                     consoleEl.insertAdjacentHTML('beforeend', `<div class="terminal-line" style="color:var(--success); font-weight:bold;">[${time}] SIMULATION COMPLETE: 94.8% probability of achieving >85% OEE threshold next shift. Variance risk: LOW.</div>`);
-                    alert('MONTE CARLO SIMULATION COMPLETE: 1,000 iterations computed. 94.8% probability of achieving >85% OEE threshold on upcoming shift.');
+                    window.showToast('MONTE CARLO SIMULATION COMPLETE: 1,000 iterations computed. 94.8% probability of achieving >85% OEE threshold on upcoming shift.', 'success');
                 }
             }, 200);
         });
@@ -1726,7 +1760,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 actionFn: () => {
                     if (elements.speedSlider) elements.speedSlider.value = 13;
                     updateMLSimulation();
-                    alert('AI DIRECTIVE APPLIED: Operating speed set to 13 SPM. Failure risk reduced to 1.8%.');
+                    window.showToast('AI DIRECTIVE APPLIED: Operating speed set to 13 SPM. Failure risk reduced to 1.8%.', 'success');
                 }
             },
             {
@@ -1753,7 +1787,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 desc: 'Paint Oven B thermal ramp time was delayed by 4.5 mins on morning start. Scheduling automated thermal pre-heating 15 minutes before shift start will maximize first-hour throughput.',
                 actionText: 'Activate Automated Pre-heat Schedule',
                 actionFn: () => {
-                    alert('AI DIRECTIVE APPLIED: Paint Oven B automated 15-minute thermal pre-heat schedule engaged in line PLC controller.');
+                    window.showToast('AI DIRECTIVE APPLIED: Paint Oven B automated 15-minute thermal pre-heat schedule engaged in line PLC controller.', 'success');
                 }
             }
         ];
