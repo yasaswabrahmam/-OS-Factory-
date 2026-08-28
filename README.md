@@ -1,149 +1,109 @@
-# 🏭 Factory OS — Decision Intelligence Platform
+# 🏭 Factory OS — Enterprise Manufacturing Decision Intelligence Platform
 
-> **CIH Hackathon 2026** | Full-Stack Industrial IoT Dashboard with AI/ML Predictive Analytics
+> **CIH Hackathon 2026** | Full-Stack Industrial IoT Dashboard with AI/ML Predictive Analytics & Multi-Agent Copilot
 
 [![Live Demo](https://img.shields.io/badge/🌐%20Live%20Demo-candid--kelpie--ac1c3a.netlify.app-brightgreen?style=for-the-badge)](https://candid-kelpie-ac1c3a.netlify.app/)
 [![GitHub](https://img.shields.io/badge/GitHub-yasaswabrahmam%2F--OS--Factory---%20-181717?style=for-the-badge&logo=github)](https://github.com/yasaswabrahmam/-OS-Factory-)
 
 ---
 
-## 🌐 Live Deployment
+## 🌐 Live Deployments & Local Ports
 
-> **👉 [https://candid-kelpie-ac1c3a.netlify.app/](https://candid-kelpie-ac1c3a.netlify.app/)**
-
-Deployed on **Netlify** — fully static, zero-dependency cloud hosting.  
-No backend required — the embedded client-side ML & AI Copilot engine runs 100% in the browser.
-
----
-
-## Overview
-
-**Factory OS** is a production-grade Manufacturing Execution System (MES) dashboard that combines:
-
-- **Real-time OEE Telemetry** across 4 plant sites (Detroit, Austin, Berlin, Shanghai)
-- **AI/ML Predictive Maintenance** — Z-Score Anomaly, Logistic Failure Risk, ARIMA Forecasting
-- **SAP ERP Integration** — Simulated PM Work Orders & MM Purchase Requisitions
-- **Six Sigma Quality Analytics** — DPMO, First-Pass Yield, Cognex Vision AI
-- **12 Operational Views** — Overview, Production, Maintenance, Quality, Inventory, Analytics, Recommendations, Alerts, Data Upload, Reports, Knowledge Base, Settings
-- **Fully Responsive** — Desktop (4-col), Tablet (2-col), Mobile (hamburger nav)
-- **Profile System** — Multi-account switcher with Settings, Add Account & Log Out
-- **AI Copilot** — Conversational plant intelligence assistant with real-time telemetry context
+| Layer | Technology | Port / URL | Description |
+|---|---|---|---|
+| 🌐 **Netlify Cloud Web App** | Static Single Page App | [candid-kelpie-ac1c3a.netlify.app](https://candid-kelpie-ac1c3a.netlify.app/) | Zero-dependency static hosting |
+| 💻 **Next.js 16 Frontend** | Next.js 16 + React 19 + Tailwind v4 + Zustand | `http://localhost:3214` | Port **3214** full enterprise UI |
+| ⚙️ **FastAPI Gateway Backend** | Python 3.11+ FastAPI + SQLite `factoryos.db` | `http://localhost:8000` | Port **8000** REST API & LangGraph Copilot |
+| 🧠 **AI ML Inference Service** | FastAPI + Scikit-Learn Joblib Models | `http://localhost:8001` | Port **8001** Anomaly, Failure Risk, RUL |
+| 🐍 **Pure Python Edge Server** | Python 3 Standard Library | `http://localhost:5000` | Port **5000** zero-dependency server |
 
 ---
 
-## Quick Start (Local)
+## 🎯 Overview
+
+**Factory OS** is a production-grade Manufacturing Execution System (MES) and Industrial IoT Decision Intelligence Platform combining:
+
+- **Real-time OEE Telemetry** across 4 plant sites (Nevada Gigafactory, Austin, Berlin, Shanghai)
+- **AI/ML Predictive Maintenance** — Isolation Forest Anomaly Detection, Random Forest Failure Risk, Gradient Boosting RUL Regressor
+- **Multi-Agent Decision Intelligence Copilot** — LangGraph orchestrator with 2.5s threadpool timeout & deterministic consensus fallback
+- **Cognex Vision AI Quality Control** — Deep learning defect inspection, DPMO, and First-Pass Yield (FPY)
+- **SAP ERP Integrations** — PM Work Orders & MM Purchase Requisitions
+- **17 Operational Modules & Routes** — Overview, Copilot, Production MES, Maintenance, Quality, Inventory, Analytics, Recommendations, Alerts, Data Upload, Reports, Knowledge Base, Settings, Login, Register, Forgot Password
+- **Interactive Command Palette** — Global `Ctrl + K` instant action search overlay
+
+---
+
+## ⚡ Quick Start (Full Enterprise Stack)
 
 ```bash
-# Run the Python backend server (port 5000)
-python server.py
+# 1. Install dependencies
+npm run init
+
+# 2. Start all 3 microservices concurrently (Frontend: 3214, Backend: 8000, ML: 8001)
+npm run dev
+
+# 3. Run automated test suite
+npm test
 ```
 
-Then open your browser at **`http://localhost:5000`**
+Open **`http://localhost:3214`** to access the enterprise Next.js platform!
+
+### Demo Login Credentials
+- **Email**: `alexander.vance@factoryos.ai`
+- **Password**: `password123`
 
 ---
 
-## Project Structure
+## 📂 Repository Structure
 
 ```
 factory-os/
-├── client/                    # Static Frontend (SPA)
-│   ├── css/
-│   │   ├── variables.css      # Design tokens (colors, spacing, typography)
-│   │   └── main.css           # Full UI + 4-breakpoint responsive system
-│   ├── js/
-│   │   ├── app.js             # Core dashboard controller (routing, charts, ML, Auth)
-│   │   └── vendor/
-│   │       └── lucide.min.js  # Icon library
-│   ├── _redirects             # Netlify SPA routing rule
-│   └── index.html             # Main SPA entry point (12 views)
+├── frontend/                  # Next.js 16 (App Router, Tailwind v4, Zustand, Port 3214)
+│   ├── app/                   # 17 Module Routes (Overview, Copilot, Production, etc.)
+│   ├── components/            # TopNav, Sidebar, CommandPalette, ToastContainer
+│   └── lib/                   # API client (with mock fallbacks) & Zustand store
 │
-├── server.py                  # Pure Python 3 backend + ML engine + REST API
-├── netlify.toml               # Netlify build configuration
+├── backend/                   # FastAPI API Gateway (Port 8000)
+│   ├── main.py                # REST Gateway & Multi-Agent LangGraph Copilot
+│   ├── factoryos.db           # SQLite database
+│   └── requirements.txt
+│
+├── ml_service/                # Joblib AI ML Microservice (Port 8001)
+│   ├── main.py                # Scikit-Learn inference API
+│   ├── models/                # Isolation Forest, Random Forest, Gradient Boosting models
+│   └── requirements.txt
+│
+├── client/                    # Static Single Page App (for Netlify/Vercel static deploy)
+├── server.py                  # Standalone Pure Python 3 Edge Server (Port 5000)
+├── scripts/                   # init_models.py & seed_database.py
+├── tests/                     # Automated test suite
+├── package.json               # Root orchestration (concurrently)
 └── README.md
 ```
 
 ---
 
-## ML Model Architecture
+## 🧠 ML Model Architecture
 
-| Model | Algorithm | Output |
-|-------|-----------|--------|
-| Anomaly Detection | Z-Score `\|SPM-12\|×0.42 + \|Bar-210\|×0.022` | Anomaly index (threshold 2.25) |
-| Failure Risk | Logistic Sigmoid `σ(0.45×speed + 0.065×pressure)` | Probability % |
-| Remaining Useful Life | `168 - f(SPM, BAR)` hours | RUL in hours |
-| OEE Forecast | ARIMA AR(1) with speed-adaptive drift | 6-shift projection |
-| Monte Carlo | 1,000 Gaussian iterations N(μ,σ²) | P(OEE > 90%) |
-
----
-
-## OEE Benchmark Results
-
-| Plant | OEE Score | Target | Status |
-|-------|-----------|--------|--------|
-| Detroit | 92.4% | 90% | ✅ PASS |
-| Austin | 94.2% | 90% | ✅ PASS |
-| Berlin | 91.8% | 90% | ✅ PASS |
-| Shanghai | 95.1% | 90% | ✅ PASS |
+| Model | Algorithm | Output Target |
+|-------|-----------|---------------|
+| Anomaly Detection | Isolation Forest (`isolation_forest.joblib`) | Outlier score & binary flag |
+| Failure Classifier | Random Forest (`failure_classifier.joblib`) | Failure Risk % (Normal / Warning / Critical) |
+| RUL Regressor | Gradient Boosting (`rul_regressor.joblib`) | Remaining Useful Life in Hours (0 - 200h) |
+| OEE Forecaster | ARIMA AR(1) Autoregressive Model | 6-shift trajectory projection |
+| Monte Carlo Risk | 1,000 Box-Muller Gaussian Iterations | P(OEE ≥ 95%), P10, P50, P90 confidence |
 
 ---
 
-## Responsive Design
+## ☁️ Netlify Deployment
 
-| Breakpoint | Width | Layout |
-|---|---|---|
-| Desktop | ≥ 1281px | 4-column bento grid, 260px sidebar |
-| Small Laptop | 1025–1280px | 2-column, 220px compact sidebar |
-| Tablet | 768–1024px | 2-column, 200px narrow sidebar |
-| Mobile | ≤ 767px | Single column, hamburger menu |
-| Extra Small | ≤ 375px | Single column, compressed UI |
+The static `client/` folder is pre-configured with `netlify.toml` and `client/_redirects`.  
+Live URL: **[https://candid-kelpie-ac1c3a.netlify.app/](https://candid-kelpie-ac1c3a.netlify.app/)**
 
 ---
 
-## API Endpoints
-
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| `GET` | `/api/telemetry/predict` | Get ML predictions (default params) |
-| `POST` | `/api/telemetry/predict` | ML predict with `{ speed, pressure }` body |
-| `GET` | `/api/telemetry/history?plant=detroit` | 30-day OEE history |
-| `GET` | `/api/telemetry/alerts` | Real-time alert feed |
-| `POST` | `/api/ai/tutor/chat` | AI Copilot chatbot |
-| `GET` | `/api/analytics/shift` | Shift performance matrix |
-| `GET` | `/api/live/state?plant=detroit` | Live ML engine state |
-| `GET` | `/api/live/anomalies` | Live anomaly event queue |
-
----
-
-## Deployment
-
-### ☁️ Netlify (Live)
-**🌐 [https://candid-kelpie-ac1c3a.netlify.app/](https://candid-kelpie-ac1c3a.netlify.app/)**
-
-The `netlify.toml` and `client/_redirects` are pre-configured.  
-To redeploy: import `yasaswabrahmam/-OS-Factory-` on [app.netlify.com](https://app.netlify.com).
-
-### 💻 Local (Python Server)
-```bash
-python server.py
-# Open http://localhost:5000
-```
-
----
-
-## Tech Stack
-
-- **Frontend**: HTML5, Vanilla CSS3, JavaScript ES6+, Chart.js, Lucide Icons
-- **Backend**: Pure Python 3 (no frameworks), custom HTTP server
-- **ML Engine**: Custom mathematical models (Z-Score, Sigmoid, ARIMA, RUL, Monte Carlo)
-- **Design**: Glassmorphism, CSS Grid/Flexbox, CSS Custom Properties
-- **Fonts**: Outfit, Inter (Google Fonts)
-- **Deployment**: Netlify (static) + Python edge server
-
----
-
-## License
+## 📄 License
 
 MIT © 2026 Yasaswabrahman Muppalla | CIH Hackathon  
-
 🌐 **Live**: [https://candid-kelpie-ac1c3a.netlify.app/](https://candid-kelpie-ac1c3a.netlify.app/)  
 📦 **GitHub**: [https://github.com/yasaswabrahmam/-OS-Factory-](https://github.com/yasaswabrahmam/-OS-Factory-)
