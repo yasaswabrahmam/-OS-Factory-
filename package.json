@@ -1,0 +1,17 @@
+{
+  "name": "factory-os-root",
+  "version": "2.0.0",
+  "private": true,
+  "description": "Factory OS — Enterprise Manufacturing Execution System & Decision Intelligence Platform",
+  "scripts": {
+    "init": "python scripts/init_models.py && python scripts/seed_database.py",
+    "dev:frontend": "cd frontend && npm run dev",
+    "dev:backend": "python backend/main.py",
+    "dev:ml": "python ml_service/main.py",
+    "dev": "concurrently -k -p \"[{name}]\" -n \"FRONTEND,BACKEND,ML_SERVICE\" -c \"cyan,purple,emerald\" \"npm run dev:frontend\" \"npm run dev:backend\" \"npm run dev:ml\"",
+    "test": "python -m unittest discover -s tests"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.0"
+  }
+}
