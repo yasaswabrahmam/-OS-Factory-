@@ -53,6 +53,8 @@ desktop.ini
 # ─── Temporary / Build ────────────────────────────────
 dist/
 build/
+.next/
+frontend/.next/
 .cache/
 *.tmp
 *.temp
