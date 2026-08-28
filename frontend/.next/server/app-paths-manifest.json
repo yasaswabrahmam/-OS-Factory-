@@ -5,16 +5,16 @@
   "/(auth)/register/page": "app/(auth)/register/page.js",
   "/page": "app/page.js",
   "/(dashboard)/alerts/page": "app/(dashboard)/alerts/page.js",
-  "/(dashboard)/analytics/page": "app/(dashboard)/analytics/page.js",
-  "/(dashboard)/inventory/page": "app/(dashboard)/inventory/page.js",
   "/(dashboard)/copilot/page": "app/(dashboard)/copilot/page.js",
+  "/(dashboard)/analytics/page": "app/(dashboard)/analytics/page.js",
   "/(dashboard)/knowledge-base/page": "app/(dashboard)/knowledge-base/page.js",
-  "/(dashboard)/production/page": "app/(dashboard)/production/page.js",
-  "/(dashboard)/quality/page": "app/(dashboard)/quality/page.js",
-  "/(dashboard)/maintenance/page": "app/(dashboard)/maintenance/page.js",
-  "/(dashboard)/recommendations/page": "app/(dashboard)/recommendations/page.js",
   "/(dashboard)/overview/page": "app/(dashboard)/overview/page.js",
+  "/(dashboard)/inventory/page": "app/(dashboard)/inventory/page.js",
   "/(dashboard)/reports/page": "app/(dashboard)/reports/page.js",
+  "/(dashboard)/recommendations/page": "app/(dashboard)/recommendations/page.js",
+  "/(dashboard)/maintenance/page": "app/(dashboard)/maintenance/page.js",
+  "/(dashboard)/quality/page": "app/(dashboard)/quality/page.js",
   "/(dashboard)/settings/page": "app/(dashboard)/settings/page.js",
-  "/(dashboard)/upload/page": "app/(dashboard)/upload/page.js"
+  "/(dashboard)/upload/page": "app/(dashboard)/upload/page.js",
+  "/(dashboard)/production/page": "app/(dashboard)/production/page.js"
 }

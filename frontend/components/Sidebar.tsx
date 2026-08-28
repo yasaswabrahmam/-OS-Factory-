@@ -13,7 +13,7 @@ import {
   Boxes,
   LineChart,
   Lightbulb,
-  BellAlert as Bell,
+  Bell,
   UploadCloud,
   FileSpreadsheet,
   BookOpen,

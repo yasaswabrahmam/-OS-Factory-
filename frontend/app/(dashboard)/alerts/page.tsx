@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { useFactoryOSStore } from '@/lib/store';
 import { api } from '@/lib/api';
 import { 
-  BellAlert as Bell, 
+  Bell, 
   CheckCircle2, 
   AlertOctagon, 
   AlertTriangle, 
